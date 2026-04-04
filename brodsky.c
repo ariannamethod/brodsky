@@ -1056,62 +1056,74 @@ static int is_used(int idx) {
  * tension. The reader fills the gap between them.
  */
 
-typedef struct { const char *a, *b; float tension; } TensionPair;
+/*
+ * Tension lifecycle:
+ *   birth (tension=0.8) → crystal (use 3-5, fused SuperToken)
+ *   → cliché (use 10+, tension decays) → death (tension < 0.05)
+ * "Каждая метафора — одноразовый шприц." (c) nobody, but true.
+ */
 
-static const TensionPair tensions[] = {
+typedef struct {
+    const char *a, *b;
+    float tension;       /* current strength — decays with use */
+    int   use_count;     /* how many times used in generation */
+    int   crystallized;  /* 1 = SuperToken formed */
+} TensionPair;
+
+static TensionPair tensions[] = {
     /* architecture × body */
-    {"skull",       "cathedral",    0.8f},
-    {"vertebra",    "empire",       0.7f},
-    {"spine",       "colonnade",    0.7f},
-    {"ribcage",     "cathedral",    0.6f},
-    {"larynx",      "corridor",     0.6f},
-    {"diaphragm",   "amphitheater", 0.6f},
-    {"sternum",     "facade",       0.5f},
-    {"collarbone",  "balustrade",   0.6f},
+    {"skull",       "cathedral",    0.8f, 0, 0},
+    {"vertebra",    "empire",       0.7f, 0, 0},
+    {"spine",       "colonnade",    0.7f, 0, 0},
+    {"ribcage",     "cathedral",    0.6f, 0, 0},
+    {"larynx",      "corridor",     0.6f, 0, 0},
+    {"diaphragm",   "amphitheater", 0.6f, 0, 0},
+    {"sternum",     "facade",       0.5f, 0, 0},
+    {"collarbone",  "balustrade",   0.6f, 0, 0},
     /* exile × water (Venice) */
-    {"exile",       "lagoon",       0.8f},
-    {"exile",       "canal",        0.7f},
-    {"departure",   "gondola",      0.7f},
-    {"passport",    "watermark",    0.8f},
-    {"border",      "tide",         0.6f},
-    {"displacement","current",      0.6f},
+    {"exile",       "lagoon",       0.8f, 0, 0},
+    {"exile",       "canal",        0.7f, 0, 0},
+    {"departure",   "gondola",      0.7f, 0, 0},
+    {"passport",    "watermark",    0.8f, 0, 0},
+    {"border",      "tide",         0.6f, 0, 0},
+    {"displacement","current",      0.6f, 0, 0},
     /* time × material */
-    {"epoch",       "dust",         0.7f},
-    {"antiquity",   "rust",         0.7f},
-    {"millennium",  "ash",          0.6f},
-    {"eternity",    "salt",         0.7f},
-    {"hourglass",   "bone",         0.6f},
-    {"calendar",    "erosion",      0.5f},
+    {"epoch",       "dust",         0.7f, 0, 0},
+    {"antiquity",   "rust",         0.7f, 0, 0},
+    {"millennium",  "ash",          0.6f, 0, 0},
+    {"eternity",    "salt",         0.7f, 0, 0},
+    {"hourglass",   "bone",         0.6f, 0, 0},
+    {"calendar",    "erosion",      0.5f, 0, 0},
     /* geometry × void */
-    {"perpendicular","nowhere",     0.7f},
-    {"asymptote",   "never",        0.8f},
-    {"parallel",    "exile",        0.7f},
-    {"intersection","death",        0.6f},
-    {"circumference","nothing",     0.6f},
-    {"tangent",     "departure",    0.6f},
+    {"perpendicular","nowhere",     0.7f, 0, 0},
+    {"asymptote",   "never",        0.8f, 0, 0},
+    {"parallel",    "exile",        0.7f, 0, 0},
+    {"intersection","death",        0.6f, 0, 0},
+    {"circumference","nothing",     0.6f, 0, 0},
+    {"tangent",     "departure",    0.6f, 0, 0},
     /* language × destruction */
-    {"consonant",   "annihilation", 0.7f},
-    {"syllable",    "hemorrhage",   0.6f},
-    {"vowel",       "extinction",   0.5f},
-    {"manuscript",  "ash",          0.8f},
-    {"typewriter",  "skull",        0.7f},
-    {"translation", "exile",        0.8f},
-    {"apostrophe",  "wound",        0.6f},
+    {"consonant",   "annihilation", 0.7f, 0, 0},
+    {"syllable",    "hemorrhage",   0.6f, 0, 0},
+    {"vowel",       "extinction",   0.5f, 0, 0},
+    {"manuscript",  "ash",          0.8f, 0, 0},
+    {"typewriter",  "skull",        0.7f, 0, 0},
+    {"translation", "exile",        0.8f, 0, 0},
+    {"apostrophe",  "wound",        0.6f, 0, 0},
     /* domestic × cosmic */
-    {"windowsill",  "constellation",0.8f},
-    {"radiator",    "eternity",     0.7f},
-    {"wallpaper",   "infinity",     0.7f},
-    {"staircase",   "abyss",        0.6f},
-    {"ceiling",     "hemisphere",   0.6f},
-    {"mattress",    "tundra",       0.6f},
-    {"corridor",    "meridian",     0.7f},
+    {"windowsill",  "constellation",0.8f, 0, 0},
+    {"radiator",    "eternity",     0.7f, 0, 0},
+    {"wallpaper",   "infinity",     0.7f, 0, 0},
+    {"staircase",   "abyss",        0.6f, 0, 0},
+    {"ceiling",     "hemisphere",   0.6f, 0, 0},
+    {"mattress",    "tundra",       0.6f, 0, 0},
+    {"corridor",    "meridian",     0.7f, 0, 0},
     /* nature × empire */
-    {"permafrost",  "bureaucracy",  0.7f},
-    {"glacier",     "surveillance", 0.6f},
-    {"fog",         "empire",       0.6f},
-    {"birch",       "exile",        0.7f},
-    {"moss",        "marble",       0.6f},
-    {NULL, NULL, 0}
+    {"permafrost",  "bureaucracy",  0.7f, 0, 0},
+    {"glacier",     "surveillance", 0.6f, 0, 0},
+    {"fog",         "empire",       0.6f, 0, 0},
+    {"birch",       "exile",        0.7f, 0, 0},
+    {"moss",        "marble",       0.6f, 0, 0},
+    {NULL, NULL, 0, 0, 0}
 };
 
 static float tension_score(int last_idx, int cand_idx) {
@@ -1120,10 +1132,35 @@ static float tension_score(int last_idx, int cand_idx) {
     const char *cand = vocab[cand_idx].text;
     for (int i = 0; tensions[i].a; i++) {
         if ((strcmp(last, tensions[i].a) == 0 && strcmp(cand, tensions[i].b) == 0) ||
-            (strcmp(last, tensions[i].b) == 0 && strcmp(cand, tensions[i].a) == 0))
-            return tensions[i].tension;
+            (strcmp(last, tensions[i].b) == 0 && strcmp(cand, tensions[i].a) == 0)) {
+            /* lifecycle: use_count affects effective tension */
+            float eff = tensions[i].tension;
+            int u = tensions[i].use_count;
+            if (u >= 10) {
+                /* cliché — dying. decay exponentially */
+                eff *= expf(-(float)(u - 10) * 0.3f);
+            } else if (u >= 3 && !tensions[i].crystallized) {
+                /* crystallize: SuperToken bonus */
+                tensions[i].crystallized = 1;
+                eff *= 1.3f; /* crystal is stronger than birth */
+            }
+            return eff;
+        }
     }
     return 0.0f;
+}
+
+/* call after a tension pair is used in generation */
+static void tension_used(int a_idx, int b_idx) {
+    const char *wa = vocab[a_idx].text;
+    const char *wb = vocab[b_idx].text;
+    for (int i = 0; tensions[i].a; i++) {
+        if ((strcmp(wa, tensions[i].a) == 0 && strcmp(wb, tensions[i].b) == 0) ||
+            (strcmp(wa, tensions[i].b) == 0 && strcmp(wb, tensions[i].a) == 0)) {
+            tensions[i].use_count++;
+            return;
+        }
+    }
 }
 
 /* ─── SCORE A CANDIDATE WORD (Dario equation) ──────────────────────── */
@@ -1373,6 +1410,10 @@ static void generate_line(Line *line, int target_syl,
             corpus_bg_add(org.last_word, idx, CORPUS_ONLINE_DECAY);
             corpus_hb_add(org.last_word, idx, CORPUS_ONLINE_DECAY);
         }
+        /* track tension pair usage — lifecycle decay */
+        if (org.last_word >= 0)
+            tension_used(org.last_word, idx);
+
         org.last_emotion = vocab[idx].emotion;
         org.prev_was_adj = vocab[idx].is_adjective;
         org.last_word = idx;
