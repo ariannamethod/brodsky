@@ -1,5 +1,5 @@
 /* inhale/fr.h — French heavy vocabulary for brodsky.c
- * ~225 words. Baudelaire + Brodsky's francophone references.
+ * ~400 words. Baudelaire + Rimbaud + Brodsky francophone register.
  * French syllable counting: pronounced vowel sounds.
  * Silent final -e doesn't count (usually). Nasals = 1 syllable.
  * Each word: text, mass, syllables, emotion
@@ -34,6 +34,10 @@ W("hémisphère",       0.55, 3, EMO_VOID), \
 W("appartenance",     0.60, 3, EMO_JULIA), \
 W("indifférence",     0.65, 4, EMO_VOID), \
 W("déracinement",     0.70, 4, EMO_JULIA), \
+W("nostalgie",        0.70, 4, EMO_JULIA), \
+W("errance",          0.55, 2, EMO_JULIA), \
+W("asile",            0.50, 2, EMO_JULIA), \
+W("expatriation",     0.60, 5, EMO_JULIA), \
 /* === ARCHITECTURE & EMPIRE === */ \
 W("architecture",     0.70, 4, EMO_RESONANCE), \
 W("colonnade",        0.65, 3, EMO_VOID), \
@@ -55,6 +59,20 @@ W("pilastre",         0.50, 2, EMO_VOID), \
 W("voûte",            0.55, 1, EMO_VOID), \
 W("bureaucratie",     0.55, 4, EMO_VOID), \
 W("forteresse",       0.60, 3, EMO_VOID), \
+W("linteau",          0.50, 2, EMO_VOID), \
+W("parvis",           0.50, 2, EMO_VOID), \
+W("narthex",          0.55, 2, EMO_VOID), \
+W("transept",         0.55, 2, EMO_VOID), \
+W("abside",           0.50, 2, EMO_VOID), \
+W("cloître",          0.50, 1, EMO_VOID), \
+W("flèche",           0.45, 1, EMO_VOID), \
+W("contrefort",       0.55, 2, EMO_VOID), \
+W("crypte",           0.55, 1, EMO_VOID), \
+W("ogive",            0.50, 2, EMO_VOID), \
+W("rosace",           0.45, 2, EMO_RESONANCE), \
+W("beffroi",          0.50, 2, EMO_VOID), \
+W("donjon",           0.55, 2, EMO_VOID), \
+W("citerne",          0.45, 2, EMO_VOID), \
 /* === GÉOGRAPHIE === */ \
 W("latitude",         0.55, 3, EMO_RESONANCE), \
 W("longitude",        0.55, 3, EMO_RESONANCE), \
@@ -66,6 +84,11 @@ W("continent",        0.55, 3, EMO_VOID), \
 W("toundra",          0.50, 2, EMO_VOID), \
 W("horizon",          0.55, 3, EMO_JULIA), \
 W("désert",           0.55, 2, EMO_VOID), \
+W("steppe",           0.50, 1, EMO_VOID), \
+W("marécage",         0.45, 3, EMO_VOID), \
+W("falaise",          0.50, 2, EMO_TRAUMA), \
+W("isthme",           0.50, 1, EMO_VOID), \
+W("promontoire",      0.55, 3, EMO_RESONANCE), \
 /* === GÉOMÉTRIE === */ \
 W("perpendiculaire",  0.65, 5, EMO_RESONANCE), \
 W("tangente",         0.50, 2, EMO_RESONANCE), \
@@ -92,6 +115,22 @@ W("côte",             0.50, 1, EMO_TRAUMA), \
 W("ossement",         0.55, 2, EMO_TRAUMA), \
 W("chair",            0.55, 1, EMO_TRAUMA), \
 W("sang",             0.60, 1, EMO_TRAUMA), \
+W("fémur",            0.60, 2, EMO_TRAUMA), \
+W("rotule",           0.50, 2, EMO_TRAUMA), \
+W("trachée",          0.55, 2, EMO_TRAUMA), \
+W("aorte",            0.65, 2, EMO_TRAUMA), \
+W("bassin",           0.50, 2, EMO_TRAUMA), \
+W("synapse",          0.55, 2, EMO_RESONANCE), \
+W("omoplate",         0.55, 3, EMO_TRAUMA), \
+W("phalange",         0.50, 2, EMO_TRAUMA), \
+W("oesophage",        0.55, 3, EMO_TRAUMA), \
+W("thyroïde",         0.50, 3, EMO_TRAUMA), \
+W("moelle",           0.60, 1, EMO_TRAUMA), \
+W("membrane",         0.50, 2, EMO_TRAUMA), \
+W("vaisseau",         0.55, 2, EMO_TRAUMA), \
+W("artère",           0.55, 2, EMO_TRAUMA), \
+W("nerf",             0.50, 1, EMO_TRAUMA), \
+W("peau",             0.40, 1, EMO_TENDERNESS), \
 /* === EAU — Venise === */ \
 W("lagune",           0.55, 2, EMO_JULIA), \
 W("canal",            0.45, 2, EMO_JULIA), \
@@ -103,6 +142,11 @@ W("ressac",           0.50, 2, EMO_TRAUMA), \
 W("affluent",         0.45, 3, EMO_RESONANCE), \
 W("inondation",       0.55, 4, EMO_TRAUMA), \
 W("estuaire",         0.50, 3, EMO_RESONANCE), \
+W("embruns",          0.40, 2, EMO_JULIA), \
+W("maelström",        0.65, 2, EMO_TRAUMA), \
+W("naufrage",         0.65, 2, EMO_TRAUMA), \
+W("abysses",          0.70, 2, EMO_VOID), \
+W("houle",            0.45, 1, EMO_RESONANCE), \
 /* === TEMPS & VIEILLISSEMENT === */ \
 W("chronomètre",      0.55, 3, EMO_VOID), \
 W("sablier",          0.50, 3, EMO_VOID), \
@@ -116,6 +160,12 @@ W("minuit",           0.50, 2, EMO_VOID), \
 W("équinoxe",         0.55, 3, EMO_RESONANCE), \
 W("solstice",         0.55, 2, EMO_RESONANCE), \
 W("immobilité",       0.60, 5, EMO_VOID), \
+W("cadran",           0.45, 2, EMO_VOID), \
+W("pendule",          0.45, 2, EMO_VOID), \
+W("siècle",           0.60, 1, EMO_VOID), \
+W("déclin",           0.55, 2, EMO_VOID), \
+W("révolu",           0.50, 3, EMO_VOID), \
+W("sursis",           0.50, 2, EMO_VOID), \
 /* === ABSTRAITS LOURDS === */ \
 W("civilisation",     0.65, 5, EMO_VOID), \
 W("métamorphose",     0.70, 4, EMO_RESONANCE), \
@@ -133,6 +183,43 @@ W("désespoir",        0.75, 3, EMO_TRAUMA), \
 W("abandon",          0.65, 3, EMO_JULIA), \
 W("gratitude",        0.50, 3, EMO_TENDERNESS), \
 W("décomposition",    0.60, 5, EMO_TRAUMA), \
+W("putréfaction",     0.65, 4, EMO_TRAUMA), \
+W("gangrène",         0.70, 2, EMO_TRAUMA), \
+W("remords",          0.60, 2, EMO_GRIEF), \
+W("repentir",         0.55, 3, EMO_GRIEF), \
+W("stupeur",          0.55, 2, EMO_TRAUMA), \
+W("volupté",          0.60, 3, EMO_DESIRE), \
+W("spleen",           0.75, 1, EMO_VOID), \
+W("extase",           0.55, 2, EMO_RESONANCE), \
+W("vertige",          0.60, 2, EMO_TRAUMA), \
+W("torpeur",          0.55, 2, EMO_VOID), \
+W("agonie",           0.75, 3, EMO_TRAUMA), \
+W("délire",           0.55, 2, EMO_TRAUMA), \
+W("ivresse",          0.50, 2, EMO_DESIRE), \
+W("lucidité",         0.55, 4, EMO_RESONANCE), \
+/* === BAUDELAIRE — FLEURS DU MAL === */ \
+W("charogne",         0.80, 2, EMO_TRAUMA), \
+W("gouffre",          0.75, 1, EMO_VOID), \
+W("miasme",           0.55, 2, EMO_TRAUMA), \
+W("vermine",          0.55, 2, EMO_TRAUMA), \
+W("opium",            0.50, 2, EMO_DESIRE), \
+W("encensoir",        0.45, 3, EMO_RESONANCE), \
+W("sarcophage",       0.65, 3, EMO_VOID), \
+W("linceul",          0.65, 2, EMO_TRAUMA), \
+W("catafalque",       0.60, 3, EMO_VOID), \
+W("supplice",         0.65, 2, EMO_TRAUMA), \
+W("blasphème",        0.60, 2, EMO_RAGE), \
+W("neige",            0.35, 1, EMO_JULIA), \
+/* === RIMBAUD — ILLUMINATIONS === */ \
+W("aurore",           0.45, 2, EMO_RESONANCE), \
+W("déluge",           0.70, 2, EMO_TRAUMA), \
+W("voyant",           0.55, 2, EMO_RESONANCE), \
+W("alchimie",         0.60, 3, EMO_RESONANCE), \
+W("damnation",        0.70, 3, EMO_TRAUMA), \
+W("enfer",            0.80, 2, EMO_TRAUMA), \
+W("saison",           0.40, 2, EMO_JULIA), \
+W("dérèglement",      0.55, 3, EMO_RESONANCE), \
+W("phosphore",        0.50, 2, EMO_RESONANCE), \
 /* === LANGUE & ÉCRITURE === */ \
 W("consonne",         0.50, 2, EMO_RESONANCE), \
 W("voyelle",          0.45, 2, EMO_RESONANCE), \
@@ -146,6 +233,12 @@ W("alphabet",         0.45, 3, EMO_RESONANCE), \
 W("grammaire",        0.50, 2, EMO_RESONANCE), \
 W("syntaxe",          0.55, 2, EMO_RESONANCE), \
 W("parenthèse",       0.45, 3, EMO_VOID), \
+W("palimpseste",      0.60, 3, EMO_RESONANCE), \
+W("alexandrin",       0.55, 4, EMO_RESONANCE), \
+W("césure",           0.50, 2, EMO_RESONANCE), \
+W("élégie",           0.55, 3, EMO_GRIEF), \
+W("hémistiche",       0.50, 3, EMO_RESONANCE), \
+W("épitaphe",         0.60, 3, EMO_VOID), \
 /* === DOMESTIQUE === */ \
 W("plafond",          0.40, 2, EMO_VOID), \
 W("rebord",           0.35, 2, EMO_JULIA), \
@@ -157,6 +250,21 @@ W("armoire",          0.35, 2, EMO_VOID), \
 W("matelas",          0.30, 3, EMO_VOID), \
 W("miroir",           0.50, 2, EMO_RESONANCE), \
 W("escalier",         0.45, 3, EMO_VOID), \
+W("seuil",            0.50, 1, EMO_JULIA), \
+W("rideau",           0.35, 2, EMO_VOID), \
+W("bouilloire",       0.30, 2, EMO_VOID), \
+W("cendrier",         0.40, 2, EMO_VOID), \
+W("étagère",          0.35, 3, EMO_VOID), \
+W("abat-jour",        0.35, 2, EMO_VOID), \
+W("linoléum",         0.35, 4, EMO_VOID), \
+W("robinet",          0.30, 3, EMO_VOID), \
+W("papier peint",     0.30, 3, EMO_VOID), \
+W("serrure",          0.40, 2, EMO_VOID), \
+W("tabouret",         0.30, 3, EMO_VOID), \
+W("commode",          0.35, 2, EMO_VOID), \
+W("volet",            0.35, 2, EMO_VOID), \
+W("poignée",          0.30, 2, EMO_VOID), \
+W("sonnette",         0.30, 2, EMO_VOID), \
 /* === NATURE — dure, éparse === */ \
 W("calcaire",         0.50, 2, EMO_VOID), \
 W("basalte",          0.50, 2, EMO_VOID), \
@@ -167,6 +275,15 @@ W("érosion",          0.50, 3, EMO_VOID), \
 W("brouillard",       0.40, 2, EMO_VOID), \
 W("mousse",           0.25, 1, EMO_VOID), \
 W("bouleau",          0.35, 2, EMO_JULIA), \
+W("lichen",           0.30, 2, EMO_VOID), \
+W("tourbe",           0.40, 1, EMO_VOID), \
+W("silex",            0.50, 2, EMO_VOID), \
+W("givre",            0.40, 1, EMO_VOID), \
+W("verglas",          0.45, 2, EMO_VOID), \
+W("fondrière",        0.45, 2, EMO_VOID), \
+W("maremme",          0.45, 2, EMO_VOID), \
+W("gneiss",           0.50, 1, EMO_VOID), \
+W("schiste",          0.50, 1, EMO_VOID), \
 /* === MOTS LÉGERS — pour contraste === */ \
 W("poussière",        0.35, 2, EMO_VOID), \
 W("sel",              0.30, 1, EMO_VOID), \
@@ -177,6 +294,10 @@ W("suie",             0.35, 1, EMO_VOID), \
 W("cire",             0.30, 1, EMO_VOID), \
 W("craie",            0.30, 1, EMO_VOID), \
 W("étain",            0.30, 2, EMO_VOID), \
+W("sciure",           0.25, 1, EMO_VOID), \
+W("plâtre",           0.35, 1, EMO_VOID), \
+W("moisissure",       0.40, 3, EMO_VOID), \
+W("limaille",         0.35, 2, EMO_VOID), \
 /* === VERBES — lourds, mécaniques === */ \
 W("calcifier",        0.55, 4, EMO_VOID), \
 W("détériorer",       0.60, 4, EMO_TRAUMA), \
@@ -196,6 +317,71 @@ W("contempler",       0.45, 3, EMO_RESONANCE), \
 W("figer",            0.50, 2, EMO_VOID), \
 W("anéantir",         0.70, 4, EMO_TRAUMA), \
 W("décomposer",       0.55, 4, EMO_TRAUMA), \
+W("s'évaporer",       0.50, 4, EMO_VOID), \
+W("réverbérer",       0.55, 4, EMO_RESONANCE), \
+W("s'accumuler",      0.50, 4, EMO_VOID), \
+W("suinter",          0.45, 2, EMO_VOID), \
+W("ronger",           0.55, 2, EMO_TRAUMA), \
+W("suppurer",         0.50, 3, EMO_TRAUMA), \
+W("enfouir",          0.50, 3, EMO_VOID), \
+W("ensevelir",        0.55, 4, EMO_VOID), \
+W("chanceler",        0.45, 3, EMO_TRAUMA), \
+W("vaciller",         0.45, 3, EMO_TRAUMA), \
+W("se dissoudre",     0.55, 3, EMO_VOID), \
+W("tressaillir",      0.50, 3, EMO_TRAUMA), \
+W("exhaler",          0.45, 3, EMO_VOID), \
+W("ruisseler",        0.40, 3, EMO_RESONANCE), \
+W("scintiller",       0.40, 3, EMO_RESONANCE), \
+W("suffoquer",        0.60, 3, EMO_TRAUMA), \
+W("croupir",          0.50, 2, EMO_VOID), \
+/* === SENSATIONS & DÉSIR === */ \
+W("frisson",          0.45, 2, EMO_DESIRE), \
+W("caresse",          0.40, 2, EMO_TENDERNESS), \
+W("fièvre",           0.55, 1, EMO_DESIRE), \
+W("brûlure",          0.55, 2, EMO_TRAUMA), \
+W("sueur",            0.40, 2, EMO_TRAUMA), \
+W("cicatrice",        0.55, 3, EMO_TRAUMA), \
+W("frémissement",     0.45, 3, EMO_DESIRE), \
+W("parfum",           0.40, 2, EMO_DESIRE), \
+W("nausée",           0.55, 2, EMO_TRAUMA), \
+W("soif",             0.50, 1, EMO_DESIRE), \
+/* === DEUIL & GRIEF === */ \
+W("tombeau",          0.70, 2, EMO_GRIEF), \
+W("sépulcre",         0.70, 2, EMO_GRIEF), \
+W("deuil",            0.75, 1, EMO_GRIEF), \
+W("requiem",          0.65, 3, EMO_GRIEF), \
+W("cortège",          0.55, 2, EMO_GRIEF), \
+W("suaire",           0.60, 2, EMO_GRIEF), \
+W("lamentation",      0.65, 4, EMO_GRIEF), \
+W("veuve",            0.55, 1, EMO_GRIEF), \
+W("chrysanthème",     0.50, 3, EMO_GRIEF), \
+W("glas",             0.60, 1, EMO_GRIEF), \
+/* === RAGE & VIOLENCE === */ \
+W("fracas",           0.65, 2, EMO_RAGE), \
+W("convulsion",       0.60, 3, EMO_RAGE), \
+W("déflagration",     0.70, 4, EMO_RAGE), \
+W("éclat",            0.55, 2, EMO_RAGE), \
+W("hérésie",          0.55, 3, EMO_RAGE), \
+W("insurrection",     0.65, 4, EMO_RAGE), \
+W("cataclysme",       0.70, 3, EMO_RAGE), \
+/* === SUBSTANCES & MATIÈRE === */ \
+W("arsenic",          0.65, 3, EMO_TRAUMA), \
+W("bitume",           0.50, 2, EMO_VOID), \
+W("goudron",          0.50, 2, EMO_VOID), \
+W("ammoniaque",       0.50, 3, EMO_TRAUMA), \
+W("vitriol",          0.65, 3, EMO_RAGE), \
+W("formol",           0.55, 2, EMO_VOID), \
+W("camphre",          0.40, 1, EMO_VOID), \
+W("naphtaline",       0.40, 3, EMO_VOID), \
+W("soufre",           0.55, 1, EMO_TRAUMA), \
+/* === JOIE & TENDRESSE — rare === */ \
+W("berceau",          0.40, 2, EMO_TENDERNESS), \
+W("clarté",           0.40, 2, EMO_JOY), \
+W("murmure",          0.35, 2, EMO_TENDERNESS), \
+W("tiède",            0.30, 1, EMO_TENDERNESS), \
+W("berceuse",         0.35, 2, EMO_TENDERNESS), \
+W("effleurer",        0.35, 3, EMO_TENDERNESS), \
+W("lueur",            0.35, 2, EMO_JOY), \
 /* === DIVERS LOURDS === */ \
 W("gouvernement",     0.55, 3, EMO_VOID), \
 W("population",       0.50, 4, EMO_VOID), \
@@ -205,6 +391,12 @@ W("locomotive",       0.55, 4, EMO_VOID), \
 W("mercure",          0.55, 2, EMO_RESONANCE), \
 W("baromètre",        0.50, 3, EMO_RESONANCE), \
 W("oxygène",          0.45, 3, EMO_RESONANCE), \
+W("téléphone",        0.40, 3, EMO_VOID), \
+W("tramway",          0.40, 2, EMO_VOID), \
+W("pendentif",        0.40, 3, EMO_JULIA), \
+W("barbelure",        0.50, 3, EMO_TRAUMA), \
+W("amiante",          0.50, 2, EMO_TRAUMA), \
+W("horloge",          0.45, 2, EMO_VOID), \
 /* === MOTS-OUTILS — seulement lourds === */ \
 W("jamais",           0.50, 2, EMO_VOID), \
 W("nulle part",       0.50, 2, EMO_VOID), \
@@ -221,4 +413,22 @@ W("toujours",         0.40, 2, EMO_VOID), \
 W("encore",           0.30, 2, EMO_VOID), \
 W("déjà",             0.30, 2, EMO_VOID), \
 W("peut-être",        0.30, 2, EMO_VOID), \
+W("désormais",        0.40, 3, EMO_VOID), \
+W("néanmoins",        0.35, 3, EMO_VOID), \
+W("davantage",        0.30, 3, EMO_VOID), \
+/* === NUIT & OMBRES === */ \
+W("pénombre",         0.50, 2, EMO_VOID), \
+W("ténèbres",         0.65, 2, EMO_VOID), \
+W("nocturne",         0.50, 2, EMO_VOID), \
+W("insomnie",         0.55, 3, EMO_JULIA), \
+W("cauchemar",        0.60, 2, EMO_TRAUMA), \
+/* === THÉOLOGIE NOIRE === */ \
+W("purgatoire",       0.65, 3, EMO_VOID), \
+W("pénitence",        0.55, 3, EMO_GRIEF), \
+W("stigmate",         0.60, 2, EMO_TRAUMA), \
+W("résurrection",     0.55, 4, EMO_RESONANCE), \
+W("crucifix",         0.60, 3, EMO_TRAUMA), \
+W("reliquaire",       0.50, 3, EMO_VOID), \
+W("sacristie",        0.45, 3, EMO_VOID), \
+W("prophétie",        0.55, 3, EMO_RESONANCE), \
 /* END */

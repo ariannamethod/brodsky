@@ -1,5 +1,5 @@
 /* inhale/en.h — English heavy vocabulary for brodsky.c
- * ~300 words. Latinisms, polysyllables, Brodsky's actual lexicon.
+ * 500 words. Latinisms, polysyllables, Brodsky's actual lexicon.
  * Each word: text, mass, syllables, emotion, consonant_density (precomputed)
  */
 
@@ -50,7 +50,13 @@ W("parallel",        0.55, 3, EMO_RESONANCE), \
 W("trapezoid",       0.50, 3, EMO_RESONANCE), \
 W("vector",          0.55, 2, EMO_RESONANCE), \
 W("rectangle",       0.45, 3, EMO_RESONANCE), \
-/* === BODY — grotesque, not tender === */ \
+W("rhombus",         0.50, 2, EMO_RESONANCE), \
+W("hypotenuse",      0.55, 4, EMO_RESONANCE), \
+W("ellipsis",        0.50, 3, EMO_RESONANCE), \
+W("vertex",          0.50, 2, EMO_RESONANCE), \
+W("bisector",        0.50, 3, EMO_RESONANCE), \
+W("parallelogram",   0.55, 5, EMO_RESONANCE), \
+/* === BODY — grotesque, medical === */ \
 W("vertebra",        0.70, 3, EMO_TRAUMA), \
 W("cartilage",       0.60, 3, EMO_TRAUMA), \
 W("ligament",        0.55, 3, EMO_TRAUMA), \
@@ -65,6 +71,26 @@ W("collarbone",      0.55, 3, EMO_TRAUMA), \
 W("ribcage",         0.60, 2, EMO_TRAUMA), \
 W("skull",           0.70, 1, EMO_TRAUMA), \
 W("spine",           0.65, 1, EMO_TRAUMA), \
+W("clavicle",        0.60, 3, EMO_TRAUMA), \
+W("femur",           0.55, 2, EMO_TRAUMA), \
+W("patella",         0.55, 3, EMO_TRAUMA), \
+W("trachea",         0.60, 3, EMO_TRAUMA), \
+W("aorta",           0.65, 3, EMO_TRAUMA), \
+W("pelvis",          0.55, 2, EMO_TRAUMA), \
+W("sacrum",          0.55, 2, EMO_TRAUMA), \
+W("cochlea",         0.50, 3, EMO_TRAUMA), \
+W("retina",          0.50, 3, EMO_TRAUMA), \
+W("synapse",         0.55, 2, EMO_RESONANCE), \
+W("scapula",         0.55, 3, EMO_TRAUMA), \
+W("tibia",           0.50, 3, EMO_TRAUMA), \
+W("ulna",            0.45, 2, EMO_TRAUMA), \
+W("cranium",         0.60, 3, EMO_TRAUMA), \
+W("metatarsal",      0.55, 4, EMO_TRAUMA), \
+W("periosteum",      0.55, 5, EMO_TRAUMA), \
+W("duodenum",        0.50, 4, EMO_TRAUMA), \
+W("thyroid",         0.55, 2, EMO_TRAUMA), \
+W("ventricle",       0.60, 3, EMO_TRAUMA), \
+W("membrane",        0.50, 2, EMO_TRAUMA), \
 /* === ARCHITECTURE & EMPIRE === */ \
 W("cathedral",       0.70, 3, EMO_VOID), \
 W("colosseum",       0.65, 4, EMO_VOID), \
@@ -81,14 +107,25 @@ W("plaster",         0.40, 2, EMO_VOID), \
 W("stucco",          0.40, 2, EMO_VOID), \
 W("gutter",          0.45, 2, EMO_VOID), \
 W("drainpipe",       0.40, 2, EMO_VOID), \
+W("cupola",          0.55, 3, EMO_VOID), \
+W("rotunda",         0.55, 3, EMO_VOID), \
+W("obelisk",         0.55, 3, EMO_VOID), \
+W("pediment",        0.50, 3, EMO_VOID), \
+W("buttress",        0.55, 2, EMO_VOID), \
+W("gargoyle",        0.55, 2, EMO_VOID), \
+W("battlement",      0.55, 3, EMO_VOID), \
+W("rampart",         0.55, 2, EMO_VOID), \
+W("basilica",        0.60, 4, EMO_VOID), \
+W("minaret",         0.50, 3, EMO_VOID), \
+W("triumphal",       0.60, 3, EMO_VOID), \
+W("cenotaph",        0.60, 3, EMO_VOID), \
+W("mausoleum",       0.65, 4, EMO_VOID), \
 /* === ABSTRACT HEAVY === */ \
 W("predicament",     0.55, 4, EMO_JULIA), \
 W("constellation",   0.65, 4, EMO_RESONANCE), \
 W("thermodynamics",  0.60, 5, EMO_RESONANCE), \
-W("deterioration",   0.65, 6, EMO_TRAUMA), \
 W("hallucination",   0.60, 5, EMO_TRAUMA), \
 W("hemorrhage",      0.70, 3, EMO_TRAUMA), \
-W("surveillance",    0.55, 3, EMO_TRAUMA), \
 W("bibliography",    0.45, 6, EMO_VOID), \
 W("archaeology",     0.50, 5, EMO_VOID), \
 W("inconsolable",    0.75, 5, EMO_JULIA), \
@@ -99,8 +136,17 @@ W("abandonment",     0.65, 4, EMO_JULIA), \
 W("annihilation",    0.80, 5, EMO_TRAUMA), \
 W("disintegration",  0.70, 5, EMO_TRAUMA), \
 W("petrification",   0.65, 5, EMO_VOID), \
+W("conflagration",   0.70, 4, EMO_TRAUMA), \
+W("premonition",     0.60, 4, EMO_GRIEF), \
+W("apprehension",    0.55, 4, EMO_GRIEF), \
+W("lamentation",     0.65, 4, EMO_GRIEF), \
+W("enumeration",     0.50, 5, EMO_VOID), \
+W("perpetuation",    0.55, 5, EMO_RESONANCE), \
+W("incarceration",   0.65, 5, EMO_TRAUMA), \
+W("renunciation",    0.60, 5, EMO_VOID), \
+W("desolation",      0.70, 4, EMO_GRIEF), \
+W("transfiguration", 0.65, 5, EMO_RESONANCE), \
 /* === NATURE — sparse, hard === */ \
-W("permafrost",      0.55, 3, EMO_VOID), \
 W("tundra",          0.50, 2, EMO_VOID), \
 W("fjord",           0.45, 1, EMO_VOID), \
 W("glacier",         0.55, 2, EMO_VOID), \
@@ -109,11 +155,16 @@ W("obsidian",        0.55, 4, EMO_VOID), \
 W("sediment",        0.45, 3, EMO_VOID), \
 W("limestone",       0.45, 2, EMO_VOID), \
 W("erosion",         0.50, 3, EMO_VOID), \
-W("estuary",         0.50, 4, EMO_RESONANCE), \
 W("horizon",         0.55, 3, EMO_JULIA), \
 W("equinox",         0.60, 3, EMO_RESONANCE), \
 W("solstice",        0.60, 2, EMO_RESONANCE), \
-/* === LIGHT WORDS — for contrast === */ \
+W("stalactite",      0.50, 3, EMO_VOID), \
+W("stalagmite",      0.50, 3, EMO_VOID), \
+W("sandstone",       0.45, 2, EMO_VOID), \
+W("pumice",          0.40, 2, EMO_VOID), \
+W("lichen",          0.35, 2, EMO_VOID), \
+W("estrangement",    0.55, 3, EMO_JULIA), \
+/* === LIGHT WORDS — monosyllabic contrast === */ \
 W("dust",            0.30, 1, EMO_VOID), \
 W("ink",             0.35, 1, EMO_VOID), \
 W("salt",            0.30, 1, EMO_VOID), \
@@ -130,6 +181,22 @@ W("soot",            0.35, 1, EMO_VOID), \
 W("wax",             0.25, 1, EMO_VOID), \
 W("chalk",           0.30, 1, EMO_VOID), \
 W("wool",            0.25, 1, EMO_TENDERNESS), \
+W("slab",            0.35, 1, EMO_VOID), \
+W("flint",           0.35, 1, EMO_VOID), \
+W("peat",            0.30, 1, EMO_VOID), \
+W("brine",           0.35, 1, EMO_VOID), \
+W("grout",           0.30, 1, EMO_VOID), \
+W("slag",            0.35, 1, EMO_VOID), \
+W("thorn",           0.35, 1, EMO_TRAUMA), \
+W("grime",           0.30, 1, EMO_VOID), \
+W("filth",           0.40, 1, EMO_VOID), \
+W("dross",           0.35, 1, EMO_VOID), \
+W("bile",            0.40, 1, EMO_TRAUMA), \
+W("kelp",            0.25, 1, EMO_VOID), \
+W("shale",           0.30, 1, EMO_VOID), \
+W("smelt",           0.35, 1, EMO_VOID), \
+W("pith",            0.30, 1, EMO_VOID), \
+W("dregs",           0.35, 1, EMO_VOID), \
 /* === TIME & AGING === */ \
 W("chronometer",     0.55, 4, EMO_VOID), \
 W("hourglass",       0.55, 2, EMO_VOID), \
@@ -139,6 +206,12 @@ W("calendar",        0.45, 3, EMO_VOID), \
 W("epoch",           0.55, 2, EMO_VOID), \
 W("millennium",      0.60, 4, EMO_VOID), \
 W("aftermath",       0.55, 3, EMO_TRAUMA), \
+W("senescence",      0.55, 3, EMO_VOID), \
+W("simultaneity",    0.60, 6, EMO_RESONANCE), \
+W("anachronism",     0.55, 4, EMO_VOID), \
+W("pendulum",        0.50, 3, EMO_VOID), \
+W("sundial",         0.45, 2, EMO_VOID), \
+W("posthumous",      0.60, 3, EMO_GRIEF), \
 /* === WATER — Brodsky's Venice === */ \
 W("lagoon",          0.50, 2, EMO_JULIA), \
 W("canal",           0.45, 2, EMO_JULIA), \
@@ -149,6 +222,14 @@ W("tide",            0.40, 1, EMO_RESONANCE), \
 W("current",         0.40, 2, EMO_RESONANCE), \
 W("undertow",        0.55, 3, EMO_TRAUMA), \
 W("tributary",       0.50, 4, EMO_RESONANCE), \
+W("inundation",      0.55, 4, EMO_TRAUMA), \
+W("embankment",      0.50, 3, EMO_VOID), \
+W("spillway",        0.45, 2, EMO_VOID), \
+W("deluge",          0.55, 2, EMO_TRAUMA), \
+W("cistern",         0.45, 2, EMO_VOID), \
+W("bilge",           0.35, 1, EMO_VOID), \
+W("brackish",        0.40, 2, EMO_VOID), \
+W("adriatic",        0.55, 4, EMO_JULIA), \
 /* === EXILE — central Brodsky theme === */ \
 W("exile",           0.80, 2, EMO_JULIA), \
 W("departure",       0.65, 3, EMO_JULIA), \
@@ -160,7 +241,14 @@ W("border",          0.55, 2, EMO_JULIA), \
 W("checkpoint",      0.50, 2, EMO_TRAUMA), \
 W("nowhere",         0.60, 2, EMO_VOID), \
 W("elsewhere",       0.55, 2, EMO_JULIA), \
-/* === LANGUAGE & WRITING === */ \
+W("expatriate",      0.60, 4, EMO_JULIA), \
+W("repatriation",    0.55, 5, EMO_JULIA), \
+W("statelessness",   0.65, 3, EMO_VOID), \
+W("motherland",      0.60, 3, EMO_JULIA), \
+W("hinterland",      0.55, 3, EMO_VOID), \
+W("banishment",      0.65, 3, EMO_JULIA), \
+W("extradition",     0.60, 4, EMO_TRAUMA), \
+/* === LANGUAGE & WRITING — Brodsky's poetics === */ \
 W("consonant",       0.50, 3, EMO_RESONANCE), \
 W("vowel",           0.45, 2, EMO_RESONANCE), \
 W("syllable",        0.50, 3, EMO_RESONANCE), \
@@ -171,6 +259,22 @@ W("manuscript",      0.55, 3, EMO_JULIA), \
 W("typewriter",      0.55, 3, EMO_JULIA), \
 W("postscript",      0.45, 2, EMO_VOID), \
 W("translation",     0.55, 3, EMO_JULIA), \
+W("nocturne",        0.55, 2, EMO_JULIA), \
+W("lullaby",         0.50, 3, EMO_TENDERNESS), \
+W("postcard",        0.45, 2, EMO_JULIA), \
+W("elegy",           0.65, 3, EMO_GRIEF), \
+W("stanza",          0.55, 2, EMO_RESONANCE), \
+W("caesura",         0.60, 3, EMO_RESONANCE), \
+W("enjambment",      0.55, 3, EMO_RESONANCE), \
+W("prosody",         0.55, 3, EMO_RESONANCE), \
+W("dactyl",          0.50, 2, EMO_RESONANCE), \
+W("iamb",            0.50, 2, EMO_RESONANCE), \
+W("trochee",         0.50, 2, EMO_RESONANCE), \
+W("alexandrine",     0.55, 4, EMO_RESONANCE), \
+W("rhetoric",        0.50, 3, EMO_VOID), \
+W("epitaph",         0.60, 3, EMO_GRIEF), \
+W("epigraph",        0.55, 3, EMO_VOID), \
+W("palimpsest",      0.60, 3, EMO_RESONANCE), \
 /* === DOMESTIC — Brodsky's rooms === */ \
 W("ceiling",         0.40, 2, EMO_VOID), \
 W("wallpaper",       0.35, 3, EMO_VOID), \
@@ -182,7 +286,24 @@ W("staircase",       0.45, 2, EMO_VOID), \
 W("corridor",        0.45, 3, EMO_VOID), \
 W("wardrobe",        0.35, 2, EMO_VOID), \
 W("mattress",        0.30, 2, EMO_VOID), \
-/* === MISC HEAVY === */ \
+W("faucet",          0.35, 2, EMO_VOID), \
+W("threshold",       0.50, 2, EMO_JULIA), \
+W("linoleum",        0.40, 4, EMO_VOID), \
+W("curtain",         0.35, 2, EMO_VOID), \
+W("kettle",          0.35, 2, EMO_VOID), \
+W("ashtray",         0.35, 2, EMO_VOID), \
+W("bookshelf",       0.40, 2, EMO_JULIA), \
+W("lightbulb",       0.35, 2, EMO_VOID), \
+W("cupboard",        0.35, 2, EMO_VOID), \
+W("bathtub",         0.30, 2, EMO_VOID), \
+W("banister",        0.40, 3, EMO_VOID), \
+W("clothesline",     0.35, 2, EMO_VOID), \
+W("doorknob",        0.30, 2, EMO_VOID), \
+W("lampshade",       0.35, 2, EMO_VOID), \
+W("pillowcase",      0.30, 3, EMO_TENDERNESS), \
+W("sideboard",       0.35, 2, EMO_VOID), \
+W("tablecloth",      0.30, 2, EMO_VOID), \
+/* === SCIENCE — Brodsky bridging physics and verse === */ \
 W("government",      0.55, 3, EMO_VOID), \
 W("population",      0.50, 4, EMO_VOID), \
 W("photograph",      0.50, 3, EMO_JULIA), \
@@ -195,14 +316,17 @@ W("oxygen",          0.45, 3, EMO_RESONANCE), \
 W("hydrogen",        0.45, 3, EMO_RESONANCE), \
 W("nitrogen",        0.40, 3, EMO_VOID), \
 W("calcium",         0.40, 3, EMO_VOID), \
-/* === FUNCTION WORDS — minimal, for glue === */ \
-W("the",             0.05, 1, EMO_VOID), \
-W("of",              0.05, 1, EMO_VOID), \
-W("and",             0.05, 1, EMO_VOID), \
-W("in",              0.05, 1, EMO_VOID), \
-W("a",               0.05, 1, EMO_VOID), \
-W("to",              0.05, 1, EMO_VOID), \
-W("is",              0.05, 1, EMO_VOID), \
+W("antimatter",      0.55, 4, EMO_RESONANCE), \
+W("isotope",         0.50, 3, EMO_RESONANCE), \
+W("centrifuge",      0.55, 3, EMO_RESONANCE), \
+W("electron",        0.50, 3, EMO_RESONANCE), \
+W("nucleus",         0.55, 3, EMO_RESONANCE), \
+W("oscillation",     0.55, 4, EMO_RESONANCE), \
+W("phosphorus",      0.50, 3, EMO_RESONANCE), \
+W("formaldehyde",    0.50, 4, EMO_TRAUMA), \
+W("stethoscope",     0.50, 3, EMO_TRAUMA), \
+W("spectrometer",    0.55, 4, EMO_RESONANCE), \
+/* === FUNCTION WORDS — minimal, for glue (mass >= 0.10) === */ \
 W("that",            0.10, 1, EMO_VOID), \
 W("which",           0.10, 1, EMO_VOID), \
 W("where",           0.15, 1, EMO_VOID), \
@@ -232,7 +356,11 @@ W("once",            0.30, 1, EMO_JULIA), \
 W("still",           0.35, 1, EMO_VOID), \
 W("yet",             0.30, 1, EMO_VOID), \
 W("already",         0.30, 3, EMO_VOID), \
-/* === VERBS — heavy, mechanical === */ \
+W("henceforth",      0.35, 2, EMO_VOID), \
+W("thereafter",      0.35, 3, EMO_VOID), \
+W("nevertheless",    0.40, 4, EMO_VOID), \
+W("notwithstanding", 0.40, 4, EMO_VOID), \
+/* === VERBS — heavy, mechanical, domain-bridging === */ \
 W("calcify",         0.55, 3, EMO_VOID), \
 W("deteriorate",     0.60, 4, EMO_TRAUMA), \
 W("disintegrate",    0.65, 4, EMO_TRAUMA), \
@@ -260,4 +388,144 @@ W("inhabit",         0.45, 3, EMO_JULIA), \
 W("penetrate",       0.50, 3, EMO_TRAUMA), \
 W("illuminate",      0.50, 4, EMO_RESONANCE), \
 W("obliterate",      0.65, 4, EMO_TRAUMA), \
+W("decompose",       0.55, 3, EMO_TRAUMA), \
+W("fossilize",       0.50, 3, EMO_VOID), \
+W("oxidize",         0.50, 3, EMO_VOID), \
+W("coagulate",       0.50, 4, EMO_TRAUMA), \
+W("metastasize",     0.60, 4, EMO_TRAUMA), \
+W("proliferate",     0.55, 4, EMO_RESONANCE), \
+W("amalgamate",      0.50, 4, EMO_RESONANCE), \
+W("circumnavigate",  0.55, 5, EMO_RESONANCE), \
+W("interrogate",     0.55, 4, EMO_TRAUMA), \
+W("confiscate",      0.55, 3, EMO_TRAUMA), \
+W("domesticate",     0.50, 4, EMO_VOID), \
+W("procrastinate",   0.45, 4, EMO_VOID), \
+W("contaminate",     0.55, 4, EMO_TRAUMA), \
+W("perpetuate",      0.55, 4, EMO_RESONANCE), \
+W("repatriate",      0.55, 4, EMO_JULIA), \
+W("asphyxiate",      0.65, 4, EMO_TRAUMA), \
+W("disseminate",     0.50, 4, EMO_VOID), \
+W("exacerbate",      0.55, 4, EMO_TRAUMA), \
+W("capitulate",      0.55, 4, EMO_VOID), \
+W("dislocate",       0.55, 3, EMO_TRAUMA), \
+W("submerge",        0.50, 2, EMO_VOID), \
+W("transfix",        0.55, 2, EMO_RESONANCE), \
+W("envelop",         0.45, 3, EMO_VOID), \
+W("supplant",        0.50, 2, EMO_VOID), \
+W("transmute",       0.55, 2, EMO_RESONANCE), \
+W("subjugate",       0.60, 3, EMO_TRAUMA), \
+W("desiccate",       0.50, 3, EMO_VOID), \
+W("bifurcate",       0.50, 3, EMO_RESONANCE), \
+W("attenuate",       0.50, 4, EMO_VOID), \
+W("reconstitute",    0.50, 4, EMO_RESONANCE), \
+W("transubstantiate",0.60, 5, EMO_RESONANCE), \
+/* === GEOGRAPHY — Brodsky's compass === */ \
+W("promontory",      0.55, 4, EMO_VOID), \
+W("isthmus",         0.50, 2, EMO_VOID), \
+W("continental",     0.55, 4, EMO_VOID), \
+W("topography",      0.55, 4, EMO_RESONANCE), \
+W("Mediterranean",   0.60, 6, EMO_JULIA), \
+W("Scandinavian",    0.55, 5, EMO_VOID), \
+W("steppe",          0.50, 1, EMO_VOID), \
+W("taiga",           0.45, 2, EMO_VOID), \
+W("plateau",         0.45, 2, EMO_VOID), \
+W("ravine",          0.45, 2, EMO_VOID), \
+W("watershed",       0.50, 3, EMO_VOID), \
+W("sargasso",        0.45, 3, EMO_VOID), \
+/* === EMPIRE CONCEPTS === */ \
+W("imperium",        0.70, 4, EMO_VOID), \
+W("hegemony",        0.65, 4, EMO_VOID), \
+W("absolutism",      0.60, 4, EMO_VOID), \
+W("totalitarian",    0.65, 6, EMO_TRAUMA), \
+W("propaganda",      0.55, 4, EMO_VOID), \
+W("jurisdiction",    0.55, 4, EMO_VOID), \
+W("conscription",    0.60, 3, EMO_TRAUMA), \
+W("insurrection",    0.60, 4, EMO_RAGE), \
+W("subjugation",     0.65, 4, EMO_TRAUMA), \
+W("emancipation",    0.55, 5, EMO_DESIRE), \
+/* === EMOTIONS — Brodsky's range === */ \
+W("nostalgia",       0.65, 4, EMO_JULIA), \
+W("ennui",           0.55, 2, EMO_VOID), \
+W("vertigo",         0.55, 3, EMO_TRAUMA), \
+W("claustrophobia",  0.60, 5, EMO_TRAUMA), \
+W("agoraphobia",     0.55, 5, EMO_TRAUMA), \
+W("euphoria",        0.55, 4, EMO_JOY), \
+W("torpor",          0.50, 2, EMO_VOID), \
+W("stupefaction",    0.55, 4, EMO_VOID), \
+W("exhilaration",    0.50, 5, EMO_JOY), \
+W("repugnance",      0.60, 3, EMO_RAGE), \
+W("remorse",         0.60, 2, EMO_GRIEF), \
+W("bereavement",     0.65, 3, EMO_GRIEF), \
+/* === OBJECTS — particular, not generic === */ \
+W("samovar",         0.50, 3, EMO_JULIA), \
+W("chandelier",      0.50, 3, EMO_VOID), \
+W("metronome",       0.50, 3, EMO_RESONANCE), \
+W("gramophone",      0.50, 3, EMO_JULIA), \
+W("telescope",       0.50, 3, EMO_RESONANCE), \
+W("microscope",      0.50, 3, EMO_RESONANCE), \
+W("thermometer",     0.50, 4, EMO_VOID), \
+W("perambulator",    0.45, 5, EMO_VOID), \
+W("sarcophagus",     0.65, 4, EMO_VOID), \
+W("reliquary",       0.55, 4, EMO_VOID), \
+/* === FABRIC & MATERIAL === */ \
+W("porcelain",       0.45, 3, EMO_VOID), \
+W("terracotta",      0.45, 4, EMO_VOID), \
+W("mahogany",        0.45, 4, EMO_VOID), \
+W("parchment",       0.50, 2, EMO_JULIA), \
+W("burlap",          0.35, 2, EMO_VOID), \
+W("asbestos",        0.45, 3, EMO_TRAUMA), \
+W("quicksilver",     0.55, 3, EMO_RESONANCE), \
+W("tungsten",        0.50, 2, EMO_VOID), \
+/* === BRODSKY POEM WORDS — specific to his English verse === */ \
+W("lozenge",         0.40, 2, EMO_VOID), \
+W("chrysanthemum",   0.45, 4, EMO_JULIA), \
+W("sextant",         0.50, 2, EMO_RESONANCE), \
+W("declension",      0.50, 3, EMO_RESONANCE), \
+W("genitive",        0.45, 3, EMO_RESONANCE), \
+W("ablative",        0.50, 3, EMO_VOID), \
+W("accusative",      0.50, 4, EMO_VOID), \
+W("nominative",      0.50, 4, EMO_VOID), \
+W("taxonomy",        0.50, 4, EMO_VOID), \
+W("cartesian",       0.50, 3, EMO_RESONANCE), \
+W("euclidean",       0.55, 4, EMO_RESONANCE), \
+W("copernican",      0.55, 4, EMO_RESONANCE), \
+W("ptolemaic",       0.55, 4, EMO_VOID), \
+W("newtonian",       0.50, 4, EMO_RESONANCE), \
+/* === ADDITIONAL — reaching 500 === */ \
+W("insufferable",    0.55, 4, EMO_RAGE), \
+W("irrevocable",     0.65, 4, EMO_GRIEF), \
+W("irreversible",    0.65, 5, EMO_GRIEF), \
+W("imperceptible",   0.50, 5, EMO_VOID), \
+W("uninhabitable",   0.55, 5, EMO_VOID), \
+W("impenetrable",    0.60, 5, EMO_VOID), \
+W("interminable",    0.55, 5, EMO_VOID), \
+W("immovable",       0.55, 4, EMO_VOID), \
+W("unforgivable",    0.65, 5, EMO_RAGE), \
+W("inconceivable",   0.55, 5, EMO_VOID), \
+W("carbuncle",       0.50, 3, EMO_TRAUMA), \
+W("gangrene",        0.60, 2, EMO_TRAUMA), \
+W("tourniquet",      0.55, 3, EMO_TRAUMA), \
+W("cauterize",       0.55, 3, EMO_TRAUMA), \
+W("suture",          0.50, 2, EMO_TRAUMA), \
+W("amputation",      0.65, 4, EMO_TRAUMA), \
+W("anesthesia",      0.50, 4, EMO_VOID), \
+W("metabolism",      0.50, 4, EMO_RESONANCE), \
+W("penmanship",      0.50, 3, EMO_JULIA), \
+W("typeface",        0.45, 2, EMO_VOID), \
+W("colophon",        0.50, 3, EMO_VOID), \
+W("frontispiece",    0.50, 3, EMO_VOID), \
+W("footnote",        0.40, 2, EMO_VOID), \
+W("marginalia",      0.50, 5, EMO_JULIA), \
+W("interlocutor",    0.50, 5, EMO_VOID), \
+W("soliloquy",       0.55, 4, EMO_JULIA), \
+W("monologue",       0.50, 3, EMO_VOID), \
+W("apostasy",        0.55, 4, EMO_VOID), \
+W("catechism",       0.50, 3, EMO_VOID), \
+W("genuflection",    0.50, 4, EMO_VOID), \
+W("requiem",         0.65, 3, EMO_GRIEF), \
+W("liturgy",         0.55, 3, EMO_VOID), \
+W("sepulcher",       0.60, 3, EMO_GRIEF), \
+W("ossuary",         0.55, 4, EMO_GRIEF), \
+W("excommunication", 0.60, 6, EMO_TRAUMA), \
+W("tabernacle",      0.55, 4, EMO_VOID), \
 /* END */
