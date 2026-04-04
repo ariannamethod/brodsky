@@ -975,15 +975,21 @@ static float ingest_prompt(const char *text) {
         ? 1.0f - (float)n_known / (float)n_words
         : 1.0f;
 
-    /* update destiny toward known words */
-    for (int i = 0; i < n_ids; i++) {
-        float *we = vocab[known_ids[i]].destiny;
-        for (int d = 0; d < DESTINY_DIM; d++)
-            org.destiny[d] = 0.7f * org.destiny[d] + 0.3f * we[d];
-    }
-    if (n_ids > 0) vec_normalize(org.destiny, DESTINY_DIM);
+    /* DO NOT update destiny toward input words.
+     * A real poet doesn't write about what you said.
+     * A real poet writes about what your words DID TO HIM.
+     *
+     * Input → chambers → chambers modulate Dario → Dario picks words
+     * → those words update destiny DURING generation.
+     *
+     * The poet reacts, not reflects. "Exile" doesn't produce poems
+     * about exile. "Exile" activates JULIA and VOID, and Julia
+     * stretches the space until "radiator" becomes the closest word
+     * to longing. That's the poem.
+     *
+     * Destiny stays where it was. Only chambers move. */
 
-    /* hebbian co-occurrence from known words */
+    /* hebbian co-occurrence from known words — this is memory, not direction */
     for (int i = 0; i < n_ids; i++)
         for (int j = i+1; j < n_ids && j < i+5; j++)
             hebbian_record(known_ids[i], known_ids[j]);
