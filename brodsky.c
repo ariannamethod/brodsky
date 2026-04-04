@@ -993,12 +993,16 @@ static float ingest_prompt(const char *text) {
         int emo = vocab[known_ids[i]].emotion;
         float mass = vocab[known_ids[i]].mass;
         switch (emo) {
-            case EMO_TRAUMA: org.chambers.phase[CH_FEAR] += mass * 0.3f; break;
-            case EMO_TENDERNESS: org.chambers.phase[CH_LOVE] += mass * 0.3f; break;
-            case EMO_RAGE: org.chambers.phase[CH_RAGE] += mass * 0.3f; break;
-            case EMO_VOID: org.chambers.phase[CH_VOID] += mass * 0.3f; break;
-            case EMO_RESONANCE: org.chambers.phase[CH_FLOW] += mass * 0.3f; break;
-            case EMO_JULIA: org.julia += mass * 0.2f; break;
+            case EMO_TRAUMA: org.chambers.phase[CH_FEAR] += mass * 0.8f; break;
+            case EMO_TENDERNESS: org.chambers.phase[CH_LOVE] += mass * 0.8f; break;
+            case EMO_RAGE: org.chambers.phase[CH_RAGE] += mass * 0.8f; break;
+            case EMO_VOID: org.chambers.phase[CH_VOID] += mass * 0.8f; break;
+            case EMO_RESONANCE: org.chambers.phase[CH_FLOW] += mass * 0.8f; break;
+            case EMO_JULIA: org.julia += mass * 0.5f; break;
+            case EMO_GRIEF: org.chambers.phase[CH_VOID] += mass * 0.5f;
+                            org.chambers.phase[CH_FEAR] += mass * 0.3f; break;
+            case EMO_DESIRE: org.chambers.phase[CH_LOVE] += mass * 0.4f;
+                             org.chambers.phase[CH_FLOW] += mass * 0.3f; break;
             default: break;
         }
     }
@@ -1849,9 +1853,12 @@ static void inter_haiku_update(void) {
 
 static int should_stop_cycle(void) {
     if (org.haiku_in_cycle >= MAX_CYCLE_HAIKU) return 1; /* shabbat */
+    /* Brodsky doesn't shut up after one stanza.
+     * First 2 haiku: almost never stop. 3rd: small chance. 5th+: real chance. */
+    if (org.haiku_in_cycle < 2) return 0; /* minimum 2 haiku per cycle */
     float saturation = (float)org.haiku_in_cycle / (float)MAX_CYCLE_HAIKU;
-    float x = org.acc_mass * 0.3f + saturation * 0.4f +
-              org.planet_diss * 0.3f - 2.0f;
+    float x = org.acc_mass * 0.15f + saturation * 0.6f +
+              org.planet_diss * 0.2f + org.julia * 0.3f - 2.5f;
     float prob = sigmoid(x);
     return rng_float() < prob;
 }
