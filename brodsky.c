@@ -2323,7 +2323,7 @@ static int sample_word(int syl_remaining, int force_max_syl,
      *
      * This gives reliable ABA within a stanza, with occasional breaks
      * that feel intentional, not accidental. */
-    if (rhyme_target >= 0 && rng_float() > 0.25f) {
+    if (rhyme_target >= 0 && rng_float() > 0.15f) {
         /* count rhyming candidates */
         int n_rhyme = 0;
         for (int i = 0; i < n_cand; i++) {
@@ -2333,7 +2333,7 @@ static int sample_word(int syl_remaining, int force_max_syl,
                 n_rhyme++;
         }
         /* if we have rhyming options, kill everything else */
-        if (n_rhyme >= 2) {
+        if (n_rhyme >= 1) {
             for (int i = 0; i < n_cand; i++) {
                 int ci = candidates[i];
                 if (ci == rhyme_target) {
@@ -2345,7 +2345,7 @@ static int sample_word(int syl_remaining, int force_max_syl,
                 /* rhyming candidates keep their natural score */
             }
         }
-        /* if n_rhyme < 2: not enough options, generate freely (graceful fallback) */
+        /* if n_rhyme < 1: not enough options, generate freely (graceful fallback) */
     }
 
     /* softmax with temperature */
