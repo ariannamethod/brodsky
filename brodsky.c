@@ -1442,67 +1442,100 @@ static void tension_used(int a_idx, int b_idx) {
     }
 }
 
-/* ─── SCORE A CANDIDATE WORD (Dario equation) ──────────────────────── */
+/* ─── SCORE A CANDIDATE WORD ────────────────────────────────────────── */
+/*
+ * Not a sum of boosts. One breath. Multiplicative.
+ *
+ * Layer 1 — CORPUS (the body): what the poet has read.
+ *   bigrams + hebbian + tension pairs. This is the statistical
+ *   skeleton. Without corpus, score = mass alone.
+ *
+ * Layer 2 — DARIO OVERLAY (the soul): how the poet feels NOW.
+ *   chambers × destiny × velocity × julia × planetary.
+ *   This MODULATES the corpus layer, not replaces it.
+ *
+ * Final: body × soul × mass.
+ * If body is zero (no corpus connection), soul can't save it.
+ * If soul is zero (dead chambers), body speaks alone — flat.
+ * When both are alive — resonance.
+ *
+ * p(x|Φ) = mass × (1 + corpus_pull) × (1 + dario_mod) / τ
+ */
 
 static float score_word(int idx) {
     Word *w = &vocab[idx];
-    float score = 0.0f;
 
-    /* B: bigram chain — emotion transition from last_emotion */
-    score += bigram[org.last_emotion][w->emotion] * 1.0f;
+    /* ── LAYER 1: CORPUS BODY ─────────────────────────────── */
 
-    /* H: Hebbian resonance */
-    if (org.last_word >= 0) {
-        float h = hebbian_score(org.last_word, idx);
-        score += org.alpha * h;
-    }
+    float corpus_pull = 0.0f;
 
-    /* F: Prophecy fulfillment — seasonal bias */
-    score += org.beta * season_bias[org.season][w->emotion];
+    /* word-level bigram from exhale corpus */
+    corpus_pull += corpus_bigram_score(org.last_word, idx) * 1.5f;
 
-    /* A: Destiny attraction — cosine similarity to current destiny */
-    float dist = vec_dist(w->destiny, org.destiny, DESTINY_DIM);
-    float effective_dist = dist * (1.0f + org.julia * JULIA_STRETCH);
-    float attraction = 1.0f / (1.0f + effective_dist);
-    score += org.gamma_w * attraction;
+    /* word-level Hebbian co-occurrence from corpus */
+    corpus_pull += corpus_hebbian_score(org.last_word, idx) * 1.0f;
 
-    /* T: Trauma gravity — words with TRAUMA emotion get pulled harder */
-    if (w->emotion == EMO_TRAUMA)
-        score += org.trauma_w * (0.5f + org.planet_diss * 0.5f);
+    /* emotion bigram: what emotion follows what */
+    corpus_pull += bigram[org.last_emotion][w->emotion] * 0.5f;
 
-    /* Chamber modulation */
-    float ch_mod = 0.0f;
-    /* map emotions to chambers roughly */
-    ch_mod += chamber_activation(&org.chambers, CH_FEAR)  * (w->emotion == EMO_TRAUMA ? 0.3f : 0.0f);
-    ch_mod += chamber_activation(&org.chambers, CH_LOVE)  * (w->emotion == EMO_JULIA ? 0.3f : 0.0f);
-    ch_mod += chamber_activation(&org.chambers, CH_RAGE)  * (w->emotion == EMO_RAGE ? 0.3f : 0.0f);
-    ch_mod += chamber_activation(&org.chambers, CH_VOID)  * (w->emotion == EMO_VOID ? 0.2f : 0.0f);
-    ch_mod += chamber_activation(&org.chambers, CH_FLOW)  * (w->emotion == EMO_RESONANCE ? 0.2f : 0.0f);
-    ch_mod += chamber_activation(&org.chambers, CH_COMPLEX) * 0.05f;
-    score += ch_mod;
+    /* old-school Hebbian (from haiku.c lineage) */
+    if (org.last_word >= 0)
+        corpus_pull += hebbian_score(org.last_word, idx) * 0.5f;
 
-    /* Calendar dissonance: boosts GRIEF and VOID */
-    if (w->emotion == EMO_GRIEF || w->emotion == EMO_VOID)
-        score += org.cal_diss * 0.2f;
-
-    /* Julia emotion bonus */
-    if (w->emotion == EMO_JULIA)
-        score += org.julia * 0.3f;
-
-    /* Semantic tension — artistic voltage between adjacent words */
+    /* semantic tension: impossible pairs (skull×cathedral) */
     float tens = tension_score(org.last_word, idx);
-    if (tens > 0.0f)
-        score += tens * 2.0f;   /* strong pull — tension pairs override most signals */
+    corpus_pull += tens * 3.0f;  /* tension is the strongest corpus signal */
 
-    /* Corpus MetaWeights: word-level bigrams from exhale corpus */
-    float bg = corpus_bigram_score(org.last_word, idx);
-    score += bg * CORPUS_BG_WEIGHT;
+    /* clamp: corpus_pull is always >= 0 */
+    if (corpus_pull < 0.0f) corpus_pull = 0.0f;
 
-    /* Corpus Hebbian: co-occurrence within window from exhale corpus */
-    float hb = corpus_hebbian_score(org.last_word, idx);
-    score += hb * CORPUS_HB_WEIGHT;
+    /* ── LAYER 2: DARIO OVERLAY (soul) ────────────────────── */
 
-    return score;
+    float dario = 0.0f;
+
+    /* A: Destiny — where the poem is going */
+    float dist = vec_dist(w->destiny, org.destiny, DESTINY_DIM);
+    float julia_stretch = 1.0f + org.julia * JULIA_STRETCH;
+    float attraction = 1.0f / (1.0f + dist * julia_stretch);
+    dario += attraction * 0.6f;
+
+    /* Chamber resonance: does this word's emotion match the active chamber? */
+    static const int emo_to_ch[EMO_COUNT] = {
+        CH_FEAR, CH_FLOW, CH_VOID, CH_FLOW, CH_LOVE,
+        CH_VOID, CH_RAGE, CH_LOVE, CH_LOVE
+    };
+    int target_ch = emo_to_ch[w->emotion];
+    float ch_act = chamber_activation(&org.chambers, target_ch);
+    dario += (ch_act > 0 ? ch_act : 0) * 0.4f;
+
+    /* T: Trauma gravity — planetary dissonance pulls trauma words */
+    if (w->emotion == EMO_TRAUMA)
+        dario += org.planet_diss * 0.3f;
+
+    /* Calendar dissonance → GRIEF and VOID */
+    if (w->emotion == EMO_GRIEF || w->emotion == EMO_VOID)
+        dario += org.cal_diss * 0.2f;
+
+    /* Julia → JULIA-tagged words feel the longing */
+    if (w->emotion == EMO_JULIA)
+        dario += org.julia * 0.5f;
+
+    /* Seasonal bias */
+    dario += season_bias[org.season][w->emotion] * 0.15f;
+
+    /* clamp: dario is always >= 0 */
+    if (dario < 0.0f) dario = 0.0f;
+
+    /* ── FINAL: body × soul × mass ────────────────────────── */
+    /*
+     * mass is the word's intrinsic weight (0.10 - 0.95)
+     * (1 + corpus_pull): corpus connection (1.0 = no connection, higher = pulled)
+     * (1 + dario): soul modulation (1.0 = neutral, higher = resonant)
+     *
+     * A word with no corpus pull and no dario resonance scores just its mass.
+     * A word pulled by corpus AND resonant with chambers scores mass × both.
+     */
+    return w->mass * (1.0f + corpus_pull) * (1.0f + dario);
 }
 
 /* ─── SAMPLE A WORD ─────────────────────────────────────────────────── */
