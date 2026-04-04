@@ -1,5 +1,5 @@
 /* inhale/ru.h — Russian heavy vocabulary for brodsky.c
- * ~800+ words. Brodsky's native tongue — heaviest of all.
+ * ~900 words. Brodsky's native tongue — heaviest of all.
  * Длинные существительные, деепричастия, имперский лексикон.
  * "Часть речи", "Конец прекрасной эпохи", "Ни страны ни погоста",
  * "Набережная неисцелимых", "Письма римскому другу",
