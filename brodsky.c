@@ -481,6 +481,8 @@ static void build_rhyme_table(void) {
 static int words_rhyme(int a, int b) {
     if (a < 0 || b < 0 || a == b) return 0;
     if (word_rhyme_class[a] < 0 || word_rhyme_class[b] < 0) return 0;
+    /* rhyme only within same language — cross-language fingerprints are noise */
+    if (vocab[a].lang != vocab[b].lang) return 0;
     return word_rhyme_class[a] == word_rhyme_class[b];
 }
 
@@ -2139,19 +2141,38 @@ static int sample_word(int syl_remaining, int force_max_syl,
     for (int i = 0; i < n_cand; i++)
         logits[i] *= vel_mult;
 
-    /* rhyme boost: if rhyme_target is set, prefer words that rhyme.
-     * This is a PREFERENCE — if no rhyme candidate fits, poetry continues.
-     * Terza rima: ABA BCB CDC... */
-    if (rhyme_target >= 0) {
+    /* rhyme: filter, not boost. A poet rhymes or breaks the rhyme.
+     *
+     * Strategy: when rhyme_target is set —
+     *   1. 25% chance: skip rhyme entirely (poet breaks his own pattern)
+     *   2. Otherwise: FILTER to rhyming candidates only
+     *   3. If no rhyming candidates survive the filter — free generation
+     *
+     * This gives reliable ABA within a stanza, with occasional breaks
+     * that feel intentional, not accidental. */
+    if (rhyme_target >= 0 && rng_float() > 0.25f) {
+        /* count rhyming candidates */
+        int n_rhyme = 0;
         for (int i = 0; i < n_cand; i++) {
             int ci = candidates[i];
-            if (ci == rhyme_target) continue; /* don't repeat the exact word */
-            if (words_rhyme(ci, rhyme_target)) {
-                logits[i] *= RHYME_BOOST;
-            } else if (words_near_rhyme(ci, rhyme_target)) {
-                logits[i] *= RHYME_FALLBACK;
+            if (ci != rhyme_target &&
+                (words_rhyme(ci, rhyme_target) || words_near_rhyme(ci, rhyme_target)))
+                n_rhyme++;
+        }
+        /* if we have rhyming options, kill everything else */
+        if (n_rhyme >= 2) {
+            for (int i = 0; i < n_cand; i++) {
+                int ci = candidates[i];
+                if (ci == rhyme_target) {
+                    logits[i] = 0.0f; /* don't repeat exact word */
+                } else if (!words_rhyme(ci, rhyme_target) &&
+                           !words_near_rhyme(ci, rhyme_target)) {
+                    logits[i] = 0.0f; /* kill non-rhyming */
+                }
+                /* rhyming candidates keep their natural score */
             }
         }
+        /* if n_rhyme < 2: not enough options, generate freely (graceful fallback) */
     }
 
     /* softmax with temperature */
