@@ -119,6 +119,50 @@ caliza côte víscera
 ondular muerte --
 ```
 
+### "exile" (v1.9, with terza rima)
+
+```
+unforgivable
+infinity exile
+perpendicular --
+
+predicament yet
+epoch perpetuation
+alexandrine bilge --
+```
+
+### "тоска" (v1.9)
+
+```
+отрешённость смерть
+империя кладбище
+корродировать
+```
+
+### "גלות" (v1.9)
+
+```
+בדידות תהום
+לדמם falaise חורבן
+חצר ברז בוז --
+
+געגוע קרבן
+téléphone עופרת טנק
+שלט הנקה --
+```
+
+### "néant" (v1.9)
+
+```
+jamais révolu
+se souvenir nerf rôder
+pétrifier fouet --
+
+méridien calcaire
+parabole oesophage siècle
+métro fièvre fleuve flèche --
+```
+
 ### "néant"
 
 ```
