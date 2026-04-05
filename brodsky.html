@@ -476,6 +476,114 @@ function load_all_corpora() {
   return total;
 }
 
+/* ─── KNOWLEDGE KERNEL (the library) ────────────────────────────── */
+const KK_HEAVY_MAX = 32, KK_COLLOC_MAX = 512, KK_COLLOC_WIN = 5;
+const KK_HEAVY_WEIGHT = 0.3, KK_COLLOC_WEIGHT = 0.5;
+const KK_PROPHECY_PROB = 0.15, KK_CHAMBER_BLEND = 0.08;
+
+let kk = { docs: [], n_docs: 0, active: -1 };
+
+function kk_ingest_text(name, text) {
+  let doc = { name, heavy: [], n_heavy: 0, chamber_mood: [0,0,0,0,0,0], colloc: [], n_colloc: 0 };
+  let word_freq = new Int32Array(vocab_size);
+  let seq = [];
+  // parse words, match against vocab
+  let words = text.replace(/[.,:;!?()"'\[\]{}]/g, ' ').split(/\s+/);
+  for (let w of words) {
+    if (!w) continue;
+    let id = find_vocab_word(w);
+    if (id >= 0) { word_freq[id]++; seq.push(id); }
+  }
+  // emotion profile
+  const emo_ch = [0,4,3,4,1,3,2,1,1];
+  let total = 0;
+  for (let i = 0; i < vocab_size; i++) {
+    if (word_freq[i] > 0) { doc.chamber_mood[emo_ch[vocab[i].emotion]] += word_freq[i]; total += word_freq[i]; }
+  }
+  if (total > 0) for (let c = 0; c < 6; c++) doc.chamber_mood[c] /= total;
+  // heavy words (filtered)
+  let freq_copy = new Int32Array(word_freq);
+  for (let pick = 0; pick < KK_HEAVY_MAX * 3 && doc.n_heavy < KK_HEAVY_MAX; pick++) {
+    let best = -1, bf = 0;
+    for (let i = 0; i < vocab_size; i++) if (freq_copy[i] > bf) { best = i; bf = freq_copy[i]; }
+    if (best < 0 || bf < 2) break;
+    freq_copy[best] = 0;
+    if (vocab[best].is_preposition || vocab[best].is_connective) continue;
+    if (vocab[best].mass < 0.25) continue;
+    doc.heavy[doc.n_heavy++] = best;
+  }
+  // collocations
+  for (let i = 0; i < seq.length && doc.n_colloc < KK_COLLOC_MAX; i++) {
+    for (let j = i+1; j < seq.length && j < i+KK_COLLOC_WIN; j++) {
+      if (seq[i] === seq[j]) continue;
+      let w = 1.0 / (j - i);
+      let found = doc.colloc.findIndex(c => (c.a===seq[i]&&c.b===seq[j])||(c.a===seq[j]&&c.b===seq[i]));
+      if (found >= 0) doc.colloc[found].weight += w;
+      else if (doc.n_colloc < KK_COLLOC_MAX) { doc.colloc.push({a:seq[i],b:seq[j],weight:w}); doc.n_colloc++; }
+    }
+  }
+  if (doc.n_heavy > 0) { kk.docs.push(doc); kk.n_docs++; }
+}
+
+async function kk_load() {
+  // Try docs/index.txt first (one filename per line), fallback to known names
+  let doc_names = [];
+  try {
+    let resp = await fetch('docs/index.txt');
+    if (resp.ok) { let text = await resp.text(); doc_names = text.split('\n').map(s=>s.trim()).filter(s=>s&&s.endsWith('.txt')); }
+  } catch(e) {}
+  if (doc_names.length === 0) {
+    doc_names = ['grammar_of_exile.txt','watermark_venice.txt','hashoresh_kazikaron.txt',
+      'kamen_i_vozdukh.txt','aleph_y_espejo.txt','gouffre_baudelaire.txt'];
+  }
+  for (let name of doc_names) {
+    try {
+      let resp = await fetch('docs/' + name);
+      if (resp.ok) { let text = await resp.text(); kk_ingest_text(name, text); }
+    } catch(e) { /* silent — doc not available */ }
+  }
+}
+
+function kk_choose_doc() {
+  if (kk.n_docs <= 0) { kk.active = -1; return; }
+  let dom = 0, best_act = Math.sin(org.chambers.phase[0]);
+  for (let i = 1; i < CH_COUNT; i++) { let a = Math.sin(org.chambers.phase[i]); if (a > best_act) { best_act = a; dom = i; } }
+  let best = 0, bs = -1e30;
+  for (let d = 0; d < kk.n_docs; d++) {
+    let s = kk.docs[d].chamber_mood[dom] * 10 + Math.random() * 0.5;
+    if (s > bs) { bs = s; best = d; }
+  }
+  kk.active = best;
+}
+
+function kk_heavy_score(idx) {
+  if (kk.active < 0) return 0;
+  let doc = kk.docs[kk.active];
+  for (let i = 0; i < doc.n_heavy; i++) if (doc.heavy[i] === idx) return 1.0 / (1.0 + i);
+  return 0;
+}
+
+function kk_colloc_score(last, cand) {
+  if (kk.active < 0 || last < 0) return 0;
+  let doc = kk.docs[kk.active];
+  for (let c of doc.colloc) if ((c.a===last&&c.b===cand)||(c.a===cand&&c.b===last)) return c.weight;
+  return 0;
+}
+
+function kk_blend_chambers() {
+  if (kk.active < 0) return;
+  let doc = kk.docs[kk.active];
+  for (let c = 0; c < 6; c++) org.chambers.phase[c] += doc.chamber_mood[c] * KK_CHAMBER_BLEND;
+}
+
+function kk_prophecy_inject() {
+  if (kk.active < 0) return;
+  let doc = kk.docs[kk.active];
+  if (doc.n_heavy <= 0) return;
+  let pick = Math.min(doc.n_heavy - 1, Math.floor(Math.random() * doc.n_heavy));
+  prophecy_add(doc.heavy[pick], 0.3);
+}
+
 /* ─── EXHALE FRAGMENTS ───────────────────────────────────────────── */
 const exhale = [
   {text:"the end of a beautiful era", destiny:[0.3,-0.8,0.1,0.5,-0.2,0.7,-0.4,0.1]},
@@ -846,7 +954,15 @@ function score_word(idx) {
   dario += parliament_score(idx) * 0.5;
   if (dario < 0) dario = 0;
 
-  return w.mass * (1 + corpus_pull) * (1 + dario);
+  // Layer 3: Knowledge (the library)
+  let kk_pull = 0;
+  if (kk.active >= 0) {
+    kk_pull += kk_heavy_score(idx) * KK_HEAVY_WEIGHT;
+    kk_pull += kk_colloc_score(org.last_word, idx) * KK_COLLOC_WEIGHT;
+    if (kk_pull < 0) kk_pull = 0;
+  }
+
+  return w.mass * (1 + corpus_pull) * (1 + dario) * (1 + kk_pull);
 }
 
 /* ─── SAMPLE WORD ────────────────────────────────────────────────── */
@@ -1316,6 +1432,13 @@ function generate_cycle() {
   org.total_cycles++;
   let cycle_num = org.total_cycles;
 
+  // Knowledge Kernel: choose doc, blend mood, inject prophecy
+  kk_choose_doc();
+  if (kk.active >= 0) {
+    kk_blend_chambers();
+    if (Math.random() < KK_PROPHECY_PROB) kk_prophecy_inject();
+  }
+
   let poems_div = document.getElementById('poems');
 
   // Cycle header
@@ -1371,12 +1494,13 @@ function generate_cycle() {
 }
 
 /* ─── INIT ───────────────────────────────────────────────────────── */
-function init() {
+async function init() {
   rng_seed(Date.now() >>> 0);
   load_vocabulary();
   build_vocab_index();
   build_rhyme_table();
   let corpus_lines = load_all_corpora();
+  await kk_load(); // silent fallback if docs/ not served
   organism_init();
   spore_load();
 
