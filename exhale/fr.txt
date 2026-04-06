@@ -1,180 +1,180 @@
-W("le pigeon corroder la cathédrale", 0.45)
-W("le boulanger diagnostiquer le néant", 0.55)
-W("le volcan habiter la vertèbre", 0.70)
-W("la machette cristalliser le crépuscule", 0.65)
-W("le parapluie pétrifier le squelette", 0.45)
-W("le facteur se souvenir de la mort", 0.50)
-W("la plantation éroder la clavicule", 0.70)
-W("le chat contempler le vide éternel", 0.40)
-W("la chaîne figer le diaphragme", 0.65)
-W("le croissant habiter le crâne", 0.35)
-W("le fouet corroder la mémoire", 0.70)
-W("la baguette décomposer le temps", 0.35)
-W("le volcan pétrifier la syllabe", 0.70)
-W("le pigeon se souvenir du fleuve", 0.40)
-W("la lave habiter le larynx", 0.75)
-W("le boulanger inciser le brouillard", 0.50)
-W("éruption cristalliser le sternum", 0.75)
-W("le parapluie éroder la mémoire", 0.40)
-W("esclave accumuler la mélancolie", 0.85)
-W("le moineau contempler le néant", 0.30)
-W("la plantation figer le sang", 0.70)
-W("le facteur habiter le désert", 0.40)
-W("la machette corroder le cartilage", 0.65)
-W("le chat pétrifier la grammaire", 0.35)
-W("le volcan décomposer la rime", 0.70)
-W("la bruine se souvenir de l'exil", 0.35)
-W("le corbeau éroder le crépuscule", 0.50)
-W("le boulanger suturer le néant", 0.55)
-W("la chaîne cristalliser le deuil", 0.65)
-W("le pigeon habiter le sternum", 0.40)
-W("éruption amputer la mémoire", 0.75)
-W("la grenouille contempler l'abîme", 0.35)
-W("le fouet pétrifier la voyelle", 0.70)
-W("la confiture se souvenir du crâne", 0.30)
-W("le volcan figer l'éternité", 0.75)
-W("le boulanger anesthésier le pont", 0.50)
-W("la plantation corroder le larynx", 0.70)
-W("le pigeon cristalliser la cendre", 0.40)
-W("le merle habiter le silence", 0.30)
-W("esclave éroder le diaphragme", 0.80)
-W("le parapluie accumuler le deuil", 0.40)
-W("la lave pétrifier le cartilage", 0.75)
-W("le beurre se souvenir du néant", 0.25)
-W("la machette figer la vertèbre", 0.65)
-W("le facteur contempler la mort", 0.45)
-W("le volcan corroder la strophe", 0.70)
-W("la bruine habiter le squelette", 0.35)
-W("le croissant décomposer le temps", 0.30)
-W("la chaîne pétrifier le vide", 0.65)
-W("le pigeon éroder le crépuscule", 0.40)
-W("le boulanger réanimer la cendre", 0.50)
-W("éruption accumuler le sang", 0.75)
-W("le chat se souvenir de rien", 0.30)
-W("la plantation cristalliser le glas", 0.70)
-W("la hirondelle habiter la rétine", 0.35)
-W("le volcan amputer le fleuve", 0.75)
-W("le biberon contempler la mort", 0.35)
-W("la machette éroder la pupille", 0.65)
-W("le boulanger ausculter l'abîme", 0.50)
-W("esclave se souvenir du crâne", 0.80)
-W("le pigeon figer la clavicule", 0.40)
-W("la lave corroder le tendon", 0.70)
-W("le miel habiter le silence", 0.30)
-W("le fouet cristalliser la chair", 0.70)
-W("le facteur pétrifier la nostalgie", 0.45)
-W("le volcan disséquer la rime", 0.70)
-W("la baguette se souvenir de l'exil", 0.30)
-W("la chaîne éroder la mémoire", 0.65)
-W("le pigeon habiter le néant", 0.40)
-W("le boulanger transfuser le vide", 0.55)
-W("éruption figer le crâne", 0.75)
-W("la grenouille corroder le temps", 0.35)
-W("la plantation pétrifier le larynx", 0.70)
-W("le corbeau accumuler le deuil", 0.50)
-W("le volcan contempler le squelette", 0.70)
-W("le parapluie cristalliser l'oubli", 0.40)
-W("la lave habiter la vertèbre", 0.75)
-W("le boulanger cautériser le néant", 0.55)
-W("esclave décomposer la syllabe", 0.80)
-W("le chat éroder le crépuscule", 0.30)
-W("la machette se souvenir du fleuve", 0.65)
-W("le moineau pétrifier le vide", 0.30)
-W("le fouet figer le diaphragme", 0.70)
-W("le croissant contempler la mort", 0.30)
-W("le volcan corroder la clavicule", 0.75)
-W("le pigeon habiter le désert", 0.40)
-W("la plantation éroder le sternum", 0.70)
-W("la bruine cristalliser le deuil", 0.35)
-W("le boulanger diagnostiquer l'absence", 0.55)
-W("éruption pétrifier la mémoire", 0.75)
-W("la chaîne habiter le crâne", 0.65)
-W("le facteur se souvenir du vide", 0.40)
-W("le volcan figer la pupille", 0.70)
-W("la lave corroder le cartilage", 0.75)
-W("esclave accumuler le temps", 0.80)
-W("le pigeon éroder la chair", 0.40)
-W("le boulanger inciser la mélancolie", 0.55)
-W("la machette cristalliser le sang", 0.65)
-W("le merle habiter le néant", 0.30)
-W("le volcan décomposer le crâne", 0.75)
-W("le parapluie se souvenir de la mort", 0.45)
-W("la plantation figer la vertèbre", 0.70)
-W("le chat corroder le temps", 0.30)
-W("le fouet pétrifier la strophe", 0.70)
-W("la bruine éroder le larynx", 0.35)
-W("le boulanger contempler la gangrène", 0.55)
-W("éruption habiter le squelette", 0.75)
-W("la chaîne cristalliser le néant", 0.65)
-W("le pigeon pétrifier le brouillard", 0.40)
-W("la lave accumuler la mélancolie", 0.70)
-W("le miel se souvenir de la cendre", 0.30)
-W("le volcan corroder le diaphragme", 0.75)
-W("le boulanger amputer le crépuscule", 0.55)
-W("esclave figer le sternum", 0.80)
-W("la machette habiter le vide", 0.65)
-W("le corbeau éroder la mémoire", 0.50)
-W("la plantation pétrifier le crâne", 0.70)
-W("le facteur cristalliser la cendre", 0.45)
-W("le volcan se souvenir du sang", 0.75)
-W("le pigeon décomposer l'éternité", 0.45)
-W("la lave figer la clavicule", 0.70)
-W("le croissant corroder le néant", 0.30)
-W("le boulanger diagnostiquer le deuil", 0.55)
-W("éruption éroder le tendon", 0.75)
-W("la chaîne pétrifier la rétine", 0.65)
-W("le chat habiter le crépuscule", 0.30)
-W("le volcan accumuler le cartilage", 0.70)
-W("la grenouille se souvenir de l'exil", 0.35)
-W("la machette corroder la rime", 0.65)
-W("le boulanger panser le néant", 0.50)
-W("le pigeon contempler la mort", 0.40)
-W("esclave cristalliser le glas", 0.80)
-W("la plantation habiter le larynx", 0.70)
-W("le merle figer le vide", 0.30)
-W("le volcan pétrifier la chair", 0.75)
-W("le parapluie éroder le squelette", 0.40)
-W("la lave décomposer le crâne", 0.75)
-W("le boulanger corroder la solitude", 0.55)
-W("le fouet accumuler le crépuscule", 0.70)
-W("le pigeon se souvenir du sternum", 0.40)
-W("éruption cristalliser la vertèbre", 0.75)
-W("le moineau habiter le brouillard", 0.30)
-W("la machette pétrifier le temps", 0.65)
-W("le boulanger recoudre le néant", 0.55)
-W("le volcan éroder le diaphragme", 0.75)
-W("la chaîne figer la mémoire", 0.65)
-W("le facteur corroder le cartilage", 0.45)
-W("la plantation se souvenir du vide", 0.70)
-W("la bruine contempler le crâne", 0.35)
-W("le pigeon habiter la clavicule", 0.40)
-W("la lave cristalliser le deuil", 0.75)
-W("le boulanger pétrifier la cendre", 0.50)
-W("esclave éroder le crépuscule", 0.80)
-W("le volcan figer la syllabe", 0.70)
-W("la machette habiter le squelette", 0.65)
-W("le corbeau corroder le néant", 0.50)
-W("le boulanger inoculer le vide", 0.55)
-W("éruption accumuler la vertèbre", 0.75)
-W("le pigeon se souvenir de la cendre", 0.40)
-W("la plantation cristalliser la chair", 0.70)
-W("le volcan corroder le temps éternel", 0.75)
-W("la lave pétrifier le néant", 0.75)
-W("le boulanger contempler le crâne", 0.50)
-W("le sort corroder le port de la mort", 0.55)
-W("le vent figer le firmament du néant", 0.60)
-W("le désir habiter le souvenir de l'empire", 0.55)
-W("la spirale pétrifier la cathédrale infernale", 0.60)
-W("le soupir cristalliser l'avenir du martyr", 0.55)
-W("la douleur éroder la splendeur du crépuscule", 0.60)
-W("la mémoire corroder le territoire noire", 0.55)
-W("le péril se souvenir de l'exil en avril", 0.50)
-W("la molécule habiter le crépuscule minuscule", 0.45)
-W("le corps contempler le transport du remord", 0.55)
-W("la lèvre figer la fièvre funèbre", 0.60)
-W("le vent accumuler le serment du firmament", 0.55)
-W("la particule éroder le corpuscule du crépuscule", 0.50)
-W("l'enfant pétrifier le tourment du châtiment", 0.55)
-W("l'espoir cristalliser le grimoire de la mémoire", 0.55)
-W("la profondeur contemplar la douleur de la splendeur", 0.55)
-W("le plaisir habiter le désir de l'avenir", 0.50)
+le pigeon corroder la cathédrale
+le boulanger diagnostiquer le néant
+le volcan habiter la vertèbre
+la machette cristalliser le crépuscule
+le parapluie pétrifier le squelette
+le facteur se souvenir de la mort
+la plantation éroder la clavicule
+le chat contempler le vide éternel
+la chaîne figer le diaphragme
+le croissant habiter le crâne
+le fouet corroder la mémoire
+la baguette décomposer le temps
+le volcan pétrifier la syllabe
+le pigeon se souvenir du fleuve
+la lave habiter le larynx
+le boulanger inciser le brouillard
+éruption cristalliser le sternum
+le parapluie éroder la mémoire
+esclave accumuler la mélancolie
+le moineau contempler le néant
+la plantation figer le sang
+le facteur habiter le désert
+la machette corroder le cartilage
+le chat pétrifier la grammaire
+le volcan décomposer la rime
+la bruine se souvenir de l exil
+le corbeau éroder le crépuscule
+le boulanger suturer le néant
+la chaîne cristalliser le deuil
+le pigeon habiter le sternum
+éruption amputer la mémoire
+la grenouille contempler l abîme
+le fouet pétrifier la voyelle
+la confiture se souvenir du crâne
+le volcan figer l éternité
+le boulanger anesthésier le pont
+la plantation corroder le larynx
+le pigeon cristalliser la cendre
+le merle habiter le silence
+esclave éroder le diaphragme
+le parapluie accumuler le deuil
+la lave pétrifier le cartilage
+le beurre se souvenir du néant
+la machette figer la vertèbre
+le facteur contempler la mort
+le volcan corroder la strophe
+la bruine habiter le squelette
+le croissant décomposer le temps
+la chaîne pétrifier le vide
+le pigeon éroder le crépuscule
+le boulanger réanimer la cendre
+éruption accumuler le sang
+le chat se souvenir de rien
+la plantation cristalliser le glas
+la hirondelle habiter la rétine
+le volcan amputer le fleuve
+le biberon contempler la mort
+la machette éroder la pupille
+le boulanger ausculter l abîme
+esclave se souvenir du crâne
+le pigeon figer la clavicule
+la lave corroder le tendon
+le miel habiter le silence
+le fouet cristalliser la chair
+le facteur pétrifier la nostalgie
+le volcan disséquer la rime
+la baguette se souvenir de l exil
+la chaîne éroder la mémoire
+le pigeon habiter le néant
+le boulanger transfuser le vide
+éruption figer le crâne
+la grenouille corroder le temps
+la plantation pétrifier le larynx
+le corbeau accumuler le deuil
+le volcan contempler le squelette
+le parapluie cristalliser l oubli
+la lave habiter la vertèbre
+le boulanger cautériser le néant
+esclave décomposer la syllabe
+le chat éroder le crépuscule
+la machette se souvenir du fleuve
+le moineau pétrifier le vide
+le fouet figer le diaphragme
+le croissant contempler la mort
+le volcan corroder la clavicule
+le pigeon habiter le désert
+la plantation éroder le sternum
+la bruine cristalliser le deuil
+le boulanger diagnostiquer l absence
+éruption pétrifier la mémoire
+la chaîne habiter le crâne
+le facteur se souvenir du vide
+le volcan figer la pupille
+la lave corroder le cartilage
+esclave accumuler le temps
+le pigeon éroder la chair
+le boulanger inciser la mélancolie
+la machette cristalliser le sang
+le merle habiter le néant
+le volcan décomposer le crâne
+le parapluie se souvenir de la mort
+la plantation figer la vertèbre
+le chat corroder le temps
+le fouet pétrifier la strophe
+la bruine éroder le larynx
+le boulanger contempler la gangrène
+éruption habiter le squelette
+la chaîne cristalliser le néant
+le pigeon pétrifier le brouillard
+la lave accumuler la mélancolie
+le miel se souvenir de la cendre
+le volcan corroder le diaphragme
+le boulanger amputer le crépuscule
+esclave figer le sternum
+la machette habiter le vide
+le corbeau éroder la mémoire
+la plantation pétrifier le crâne
+le facteur cristalliser la cendre
+le volcan se souvenir du sang
+le pigeon décomposer l éternité
+la lave figer la clavicule
+le croissant corroder le néant
+le boulanger diagnostiquer le deuil
+éruption éroder le tendon
+la chaîne pétrifier la rétine
+le chat habiter le crépuscule
+le volcan accumuler le cartilage
+la grenouille se souvenir de l exil
+la machette corroder la rime
+le boulanger panser le néant
+le pigeon contempler la mort
+esclave cristalliser le glas
+la plantation habiter le larynx
+le merle figer le vide
+le volcan pétrifier la chair
+le parapluie éroder le squelette
+la lave décomposer le crâne
+le boulanger corroder la solitude
+le fouet accumuler le crépuscule
+le pigeon se souvenir du sternum
+éruption cristalliser la vertèbre
+le moineau habiter le brouillard
+la machette pétrifier le temps
+le boulanger recoudre le néant
+le volcan éroder le diaphragme
+la chaîne figer la mémoire
+le facteur corroder le cartilage
+la plantation se souvenir du vide
+la bruine contempler le crâne
+le pigeon habiter la clavicule
+la lave cristalliser le deuil
+le boulanger pétrifier la cendre
+esclave éroder le crépuscule
+le volcan figer la syllabe
+la machette habiter le squelette
+le corbeau corroder le néant
+le boulanger inoculer le vide
+éruption accumuler la vertèbre
+le pigeon se souvenir de la cendre
+la plantation cristalliser la chair
+le volcan corroder le temps éternel
+la lave pétrifier le néant
+le boulanger contempler le crâne
+le sort corroder le port de la mort
+le vent figer le firmament du néant
+le désir habiter le souvenir de l empire
+la spirale pétrifier la cathédrale infernale
+le soupir cristalliser l avenir du martyr
+la douleur éroder la splendeur du crépuscule
+la mémoire corroder le territoire noire
+le péril se souvenir de l exil en avril
+la molécule habiter le crépuscule minuscule
+le corps contempler le transport du remord
+la lèvre figer la fièvre funèbre
+le vent accumuler le serment du firmament
+la particule éroder le corpuscule du crépuscule
+l enfant pétrifier le tourment du châtiment
+l espoir cristalliser le grimoire de la mémoire
+la profondeur contemplar la douleur de la splendeur
+le plaisir habiter le désir de l avenir

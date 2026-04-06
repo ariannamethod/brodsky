@@ -3617,13 +3617,19 @@ static void repl(void) {
             int cls = word_rhyme_class[found];
             printf("  %s\"%s\" → tail \"%s\" (class %d)%s\n",
                    ANSI_DIM, vocab[found].text, tail, cls, ANSI_RESET);
-            if (cls >= 0 && cls < MAX_RHYME_CLASSES) {
-                RhymeClass *rc = &rhyme_classes[cls];
-                printf("  %srhymes with (%d):%s", ANSI_DIM, rc->count, ANSI_RESET);
+            /* scan ALL vocab for true rhymes (rc->members may be truncated at 64) */
+            {
                 int shown = 0;
-                for (int ri = 0; ri < rc->count && shown < 20; ri++) {
-                    if (rc->members[ri] == found) continue;
-                    printf(" %s", vocab[rc->members[ri]].text);
+                for (int i = 0; i < vocab_size; i++) {
+                    if (i == found) continue;
+                    if (words_rhyme(found, i)) shown++;
+                }
+                printf("  %srhymes with (%d):%s", ANSI_DIM, shown, ANSI_RESET);
+                shown = 0;
+                for (int i = 0; i < vocab_size && shown < 30; i++) {
+                    if (i == found) continue;
+                    if (!words_rhyme(found, i)) continue;
+                    printf(" %s", vocab[i].text);
                     shown++;
                 }
                 if (shown == 0) printf(" %s(none)%s", ANSI_DIM, ANSI_RESET);
