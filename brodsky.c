@@ -63,6 +63,20 @@
 #define EXHALE_COUNT    12
 #define MAX_PROPHECY    32
 
+/* ─── MEMORY SEA ───────────────────────────────────────────────────── */
+/*
+ * A poet remembers his poems. They sink, decay, resurface.
+ * Each memory stores: key words, coda word, chamber state, timestamp.
+ * Shallow memories evict first. Resurfacing strengthens.
+ * "The things that come back matter more."
+ */
+
+#define SEA_SLOTS        64
+#define SEA_KEY_WORDS    8     /* key words per poem memory */
+#define SEA_RESURFACE_P  0.25f /* chance to resurface per cycle */
+#define SEA_DECAY_RATE   0.97f /* depth decay per cycle */
+#define SEA_MIN_DEPTH    0.05f /* below this = evicted */
+
 /* ─── TERZA RIMA RHYME ENGINE ──────────────────────────────────────── */
 
 #define MAX_RHYME_CLASSES 512
@@ -1400,6 +1414,96 @@ typedef struct {
 
 static Organism org;
 
+/* ─── MEMORY SEA (poem persistence across cycles) ──────────────────── */
+
+typedef struct {
+    int   words[SEA_KEY_WORDS]; /* key word indices from the poem */
+    int   n_words;
+    int   coda_word;            /* the final word — the verdict */
+    float chambers[CH_COUNT];   /* chamber state when written */
+    float julia;                /* julia when written */
+    float planet_diss;          /* planetary state when written */
+    int   cycle;                /* total_cycles when written */
+    float depth;                /* deeper = more important. decays. */
+    int   alive;                /* 0 = slot empty */
+} PoemMemory;
+
+typedef struct {
+    PoemMemory poems[SEA_SLOTS];
+    int        count;
+    int        resurface_count;  /* total resurfacings across all time */
+} MemorySea;
+
+static MemorySea sea;
+
+static void sea_init(void) {
+    memset(&sea, 0, sizeof(sea));
+}
+
+/* Sink a new poem into the sea */
+static void sea_record(const int *key_words, int n_keys, int coda_word) {
+    /* find shallowest slot (or empty) */
+    int slot = -1;
+    float min_depth = 1e30f;
+    for (int i = 0; i < SEA_SLOTS; i++) {
+        if (!sea.poems[i].alive) { slot = i; break; }
+        if (sea.poems[i].depth < min_depth) {
+            min_depth = sea.poems[i].depth;
+            slot = i;
+        }
+    }
+    if (slot < 0) slot = 0;
+
+    PoemMemory *pm = &sea.poems[slot];
+    pm->n_words = n_keys < SEA_KEY_WORDS ? n_keys : SEA_KEY_WORDS;
+    for (int i = 0; i < pm->n_words; i++) pm->words[i] = key_words[i];
+    pm->coda_word = coda_word;
+    memcpy(pm->chambers, org.chambers.phase, sizeof(float) * CH_COUNT);
+    pm->julia = org.julia;
+    pm->planet_diss = org.planet_diss;
+    pm->cycle = org.total_cycles;
+    pm->depth = 1.0f; /* fresh poem = maximum depth */
+    pm->alive = 1;
+    if (slot >= sea.count) sea.count = slot + 1;
+}
+
+/* Decay all memories. Called once per cycle. */
+static void sea_decay(void) {
+    for (int i = 0; i < SEA_SLOTS; i++) {
+        if (!sea.poems[i].alive) continue;
+        sea.poems[i].depth *= SEA_DECAY_RATE;
+        if (sea.poems[i].depth < SEA_MIN_DEPTH)
+            sea.poems[i].alive = 0;  /* sunk too deep — gone */
+    }
+}
+
+/* Find the poem most resonant with current chamber state.
+ * Returns slot index or -1. Resurfacing strengthens the memory. */
+static int sea_resurface(void) {
+    if (rng_float() > SEA_RESURFACE_P) return -1;
+
+    float best_score = -1e30f;
+    int best = -1;
+    for (int i = 0; i < SEA_SLOTS; i++) {
+        if (!sea.poems[i].alive) continue;
+        /* similarity = dot product of chamber states */
+        float sim = 0.0f;
+        for (int c = 0; c < CH_COUNT; c++)
+            sim += sinf(org.chambers.phase[c]) * sinf(sea.poems[i].chambers[c]);
+        /* depth-weighted: deeper memories are harder to surface but more impactful */
+        float score = sim * sea.poems[i].depth + rng_float() * 0.3f;
+        if (score > best_score) { best_score = score; best = i; }
+    }
+
+    if (best >= 0) {
+        /* resurfacing strengthens the memory */
+        sea.poems[best].depth += 0.3f;
+        if (sea.poems[best].depth > 2.0f) sea.poems[best].depth = 2.0f;
+        sea.resurface_count++;
+    }
+    return best;
+}
+
 /* KK runtime functions live in kk.h — all parameterized, no globals needed */
 
 /* forward declarations for parliament (defined after tension pairs) */
@@ -1438,6 +1542,7 @@ static void organism_init(void) {
     bigram_init();
     prophecy_init(&org.prophecy);
     parliament_init(&org.parliament);
+    sea_init();
 }
 
 /* ─── INGEST USER PROMPT ────────────────────────────────────────────── */
@@ -3119,30 +3224,200 @@ static void print_chambers(void) {
 }
 
 static void print_cycle_footer(int haiku_count) {
-    printf("\n  %s%d haiku · mass %.1f · julia %.2f%s\n",
-           ANSI_DIM, haiku_count, org.acc_mass, org.julia, ANSI_RESET);
+    int sea_alive = 0;
+    for (int i = 0; i < SEA_SLOTS; i++) if (sea.poems[i].alive) sea_alive++;
+    printf("\n  %s%d haiku + coda · mass %.1f · julia %.2f · sea: %d poems%s\n",
+           ANSI_DIM, haiku_count, org.acc_mass, org.julia, sea_alive, ANSI_RESET);
     printf("%s━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━%s\n",
            ANSI_DIM, ANSI_RESET);
 }
 
+/* ─── GENERATE CODA (the verdict) ──────────────────────────────────── */
+/*
+ * One line. 5 or 7 syllables. Forced rhyme with prev_middle_end.
+ * All accumulated mass, julia, chambers — compressed into a verdict.
+ * Dante ended with a single line. Brodsky ends with a sentence.
+ *
+ * ABA BCB CDC ... YZY Z
+ *                      ^ this is the coda
+ */
+
+typedef struct {
+    Line line;
+    int  rhymed;   /* 1 = successfully rhymed */
+} Coda;
+
+static void generate_coda(Coda *coda, int rhyme_target) {
+    memset(coda, 0, sizeof(*coda));
+    int tlang = org.current_lang;
+
+    /* coda is 5 syllables — terse, final */
+    int target_syl = 5;
+
+    /* if julia is very high, allow 7 — the longing stretches even the verdict */
+    if (org.julia > 0.7f) target_syl = 7;
+
+    /* generate with forced rhyme — no 8% skip, this is the VERDICT */
+    int reserved_end = pick_rhyme_word(rhyme_target, target_syl - 1, tlang);
+    if (reserved_end >= 0) {
+        coda->rhymed = 1;
+        int fill_budget = target_syl - vocab[reserved_end].syllables;
+        mark_used(reserved_end);
+
+        while (coda->line.syllables < fill_budget && coda->line.count < MAX_LINE_WORDS - 1) {
+            int remaining = fill_budget - coda->line.syllables;
+            int force = (remaining <= 2) ? 1 : 0;
+            int idx = sample_word(remaining, force, tlang, -1, NULL, -1);
+            if (idx < 0) break;
+            line_place_word(&coda->line, idx);
+        }
+        if (coda->line.count < MAX_LINE_WORDS)
+            line_place_word(&coda->line, reserved_end);
+    } else {
+        /* no rhyme found — generate freely, the verdict stands alone */
+        coda->rhymed = 0;
+        while (coda->line.syllables < target_syl && coda->line.count < MAX_LINE_WORDS) {
+            int remaining = target_syl - coda->line.syllables;
+            int force = (remaining <= 2) ? 1 : 0;
+            int idx = sample_word(remaining, force, tlang, -1, NULL, -1);
+            if (idx < 0) break;
+            line_place_word(&coda->line, idx);
+        }
+    }
+}
+
+static void print_coda(const Coda *coda) {
+    printf("\n  %s[coda]%s\n", ANSI_BOLD, ANSI_RESET);
+    const Line *line = &coda->line;
+    PunctMark marks[MAX_LINE_WORDS];
+    memset(marks, 0, sizeof(marks));
+    punctuate_line(line, marks);
+
+    printf("  ");
+    for (int w = 0; w < line->count; w++) {
+        int idx = line->words[w];
+        int emo = vocab[idx].emotion;
+
+        if (marks[w].pre_punct[0] != '\0') {
+            printf("%s%s%s", ANSI_RESET, marks[w].pre_punct, ANSI_RESET);
+        } else if (w > 0) {
+            printf(" ");
+        }
+
+        char cap[128];
+        const char *display = vocab[idx].text;
+        if (marks[w].capitalize && !marks[w].ghost) {
+            capitalize_word(display, cap, (int)sizeof(cap));
+            display = cap;
+        }
+        /* coda words are always bold — the verdict weighs */
+        printf("%s%s%s%s", ANSI_BOLD, emo_color[emo], display, ANSI_RESET);
+
+        if (marks[w].post_punct[0] != '\0')
+            printf("%s%s%s", ANSI_RESET, marks[w].post_punct, ANSI_RESET);
+    }
+    printf("\n");
+}
+
+static int coda_to_string(const Coda *coda, char *buf, int bufsize) {
+    int pos = 0;
+    const Line *line = &coda->line;
+    PunctMark marks[MAX_LINE_WORDS];
+    memset(marks, 0, sizeof(marks));
+    punctuate_line(line, marks);
+
+    for (int w = 0; w < line->count; w++) {
+        int idx = line->words[w];
+        const char *text = vocab[idx].text;
+        if (marks[w].pre_punct[0] != '\0') {
+            int plen = (int)strlen(marks[w].pre_punct);
+            if (pos + plen < bufsize) { memcpy(buf + pos, marks[w].pre_punct, (size_t)plen); pos += plen; }
+        } else if (w > 0 && pos < bufsize - 1) {
+            buf[pos++] = ' ';
+        }
+        if (marks[w].capitalize && !marks[w].ghost) {
+            char cap[128];
+            int clen = capitalize_word(text, cap, (int)sizeof(cap));
+            if (pos + clen < bufsize) { memcpy(buf + pos, cap, (size_t)clen); pos += clen; }
+        } else {
+            int tlen = (int)strlen(text);
+            if (pos + tlen < bufsize) { memcpy(buf + pos, text, (size_t)tlen); pos += tlen; }
+        }
+        if (marks[w].post_punct[0] != '\0') {
+            int plen = (int)strlen(marks[w].post_punct);
+            if (pos + plen < bufsize) { memcpy(buf + pos, marks[w].post_punct, (size_t)plen); pos += plen; }
+        }
+    }
+    if (pos < bufsize) buf[pos] = '\0';
+    return pos;
+}
+
 /* ─── GENERATE ONE FULL CYCLE ───────────────────────────────────────── */
+/*
+ * The spiral: each haiku is fed back through ingest_prompt.
+ * The poet reads his own words. Chambers shift from his own tones.
+ * Julia grows from his own longing. Mass accumulates.
+ * Each stanza is heavier than the last because it carries
+ * the somatic reaction to everything that came before.
+ *
+ * At the end: coda. One line. The verdict. Forced rhyme.
+ * All mass compressed into 5-7 syllables.
+ *
+ * After the coda: the poem sinks into the Memory Sea.
+ * It may resurface weeks later, when the chambers align.
+ */
 
 static int generate_cycle(int cycle_num, char *out_buf, int out_bufsize) {
     cycle_reset();
     org.total_cycles++;
     int out_pos = 0;
 
+    /* Memory Sea: decay all existing memories */
+    sea_decay();
+
+    /* Memory Sea: try to resurface a past poem */
+    int surfaced = sea_resurface();
+    if (surfaced >= 0) {
+        PoemMemory *pm = &sea.poems[surfaced];
+        /* the resurfaced poem modulates: ingest its key words */
+        for (int i = 0; i < pm->n_words; i++) {
+            if (pm->words[i] >= 0 && pm->words[i] < vocab_size) {
+                int emo = vocab[pm->words[i]].emotion;
+                float mass = vocab[pm->words[i]].mass;
+                /* blend into chambers like ingest does */
+                switch (emo) {
+                    case EMO_TRAUMA: org.chambers.phase[CH_FEAR] += mass * 0.4f; break;
+                    case EMO_TENDERNESS: org.chambers.phase[CH_LOVE] += mass * 0.4f; break;
+                    case EMO_VOID: org.chambers.phase[CH_VOID] += mass * 0.4f; break;
+                    case EMO_JULIA: org.julia += mass * 0.3f; break;
+                    default: break;
+                }
+                /* add as prophecy — the past whispers what wants to be said again */
+                prophecy_add(&org.prophecy, pm->words[i], 0.3f * pm->depth);
+            }
+        }
+        /* if coda word exists, it has gravitational pull */
+        if (pm->coda_word >= 0 && pm->coda_word < vocab_size)
+            prophecy_add(&org.prophecy, pm->coda_word, 0.5f * pm->depth);
+    }
+
     /* Knowledge Kernel: choose resonant document, blend mood */
     kk_choose_doc(org.chambers.phase, CH_COUNT, rng_float);
     if (kk.active >= 0) {
         kk_blend_chambers(org.chambers.phase, CH_COUNT);
-        /* prophecy injection from reading */
         if (rng_float() < KK_PROPHECY_PROB)
             kk_prophecy_inject(prophecy_add, &org.prophecy, rng_float);
     }
 
     print_cycle_header(cycle_num);
+    if (surfaced >= 0)
+        printf("  %smemory surfaces: cycle %d, depth %.2f%s\n",
+               ANSI_DIM, sea.poems[surfaced].cycle, sea.poems[surfaced].depth, ANSI_RESET);
     print_chambers();
+
+    /* collect key words for Memory Sea (heaviest words from the cycle) */
+    int sea_keys[SEA_KEY_WORDS * 4]; /* oversized buffer, pick top by mass */
+    int sea_n_keys = 0;
 
     do {
         org.haiku_in_cycle++;
@@ -3153,6 +3428,28 @@ static int generate_cycle(int cycle_num, char *out_buf, int out_bufsize) {
         memset(&h, 0, sizeof(h));
         generate_haiku(&h);
         print_haiku_colored(&h);
+
+        /* collect key words from this haiku (for Memory Sea) */
+        for (int ln = 0; ln < 3; ln++) {
+            for (int w = 0; w < h.lines[ln].count; w++) {
+                int idx = h.lines[ln].words[w];
+                if (vocab[idx].mass >= 0.50f && sea_n_keys < SEA_KEY_WORDS * 4)
+                    sea_keys[sea_n_keys++] = idx;
+            }
+        }
+
+        /* META-RECURSION: the poet reads his own words.
+         * "He is mechanical. Deliberately heavy."
+         * The output becomes input. Chambers shift from his own tones.
+         * Julia grows from his own longing. The spiral tightens. */
+        {
+            char self_text[512];
+            haiku_to_string(&h, self_text, (int)sizeof(self_text));
+            ingest_prompt(self_text);
+            /* the ingest modifies: chambers, hebbian, julia, current_lang.
+             * but we keep current_lang stable within a cycle. */
+            org.current_lang = detect_language(self_text);
+        }
 
         /* write to buffer for web mode */
         if (out_buf && out_pos < out_bufsize - 256) {
@@ -3171,7 +3468,41 @@ static int generate_cycle(int cycle_num, char *out_buf, int out_bufsize) {
 
     } while (1);
 
+    /* ─── CODA: the verdict ─────────────────────────────────── */
+    /* rhyme target = prev_middle_end (last B in the chain)
+     * if no chain, rhyme with the last word of the last haiku */
+    int coda_rhyme = org.prev_middle_end;
+
+    Coda coda;
+    generate_coda(&coda, coda_rhyme);
+    print_coda(&coda);
+
+    /* coda word for Memory Sea */
+    int coda_word = -1;
+    if (coda.line.count > 0)
+        coda_word = coda.line.words[coda.line.count - 1];
+
+    /* write coda to buffer */
+    if (out_buf && out_pos < out_bufsize - 128) {
+        out_buf[out_pos++] = '\n';
+        int clen = coda_to_string(&coda, out_buf + out_pos, out_bufsize - out_pos);
+        out_pos += clen;
+    }
+
     if (out_buf && out_pos < out_bufsize) out_buf[out_pos] = '\0';
+
+    /* ─── MEMORY SEA: sink this poem ────────────────────────── */
+    /* pick top SEA_KEY_WORDS by mass from collected keys */
+    /* simple selection: sort by mass descending, take top N */
+    for (int i = 0; i < sea_n_keys - 1; i++) {
+        for (int j = i + 1; j < sea_n_keys; j++) {
+            if (vocab[sea_keys[j]].mass > vocab[sea_keys[i]].mass) {
+                int tmp = sea_keys[i]; sea_keys[i] = sea_keys[j]; sea_keys[j] = tmp;
+            }
+        }
+    }
+    int top_n = sea_n_keys < SEA_KEY_WORDS ? sea_n_keys : SEA_KEY_WORDS;
+    sea_record(sea_keys, top_n, coda_word);
 
     print_cycle_footer(org.haiku_in_cycle);
     return org.haiku_in_cycle;
@@ -3180,7 +3511,7 @@ static int generate_cycle(int cycle_num, char *out_buf, int out_bufsize) {
 /* ─── SPORE: PERSISTENCE ──────────────────────────────────────────── */
 
 #define SPORE_MAGIC   0x42524F44  /* "BROD" */
-#define SPORE_VERSION 2          /* v2: added parliament state */
+#define SPORE_VERSION 3          /* v3: added Memory Sea */
 #define SPORE_PATH    "brodsky.spore"
 
 static int tension_pair_count(void) {
@@ -3251,6 +3582,22 @@ static void spore_save(const char *path) {
         fwrite(&org.parliament.e[i].alive,     sizeof(int),   1, f);
     }
 
+    /* Memory Sea (v3) */
+    fwrite(&sea.count, sizeof(int), 1, f);
+    fwrite(&sea.resurface_count, sizeof(int), 1, f);
+    for (int i = 0; i < sea.count && i < SEA_SLOTS; i++) {
+        fwrite(&sea.poems[i].alive, sizeof(int), 1, f);
+        if (!sea.poems[i].alive) continue;
+        fwrite(sea.poems[i].words, sizeof(int), SEA_KEY_WORDS, f);
+        fwrite(&sea.poems[i].n_words, sizeof(int), 1, f);
+        fwrite(&sea.poems[i].coda_word, sizeof(int), 1, f);
+        fwrite(sea.poems[i].chambers, sizeof(float), CH_COUNT, f);
+        fwrite(&sea.poems[i].julia, sizeof(float), 1, f);
+        fwrite(&sea.poems[i].planet_diss, sizeof(float), 1, f);
+        fwrite(&sea.poems[i].cycle, sizeof(int), 1, f);
+        fwrite(&sea.poems[i].depth, sizeof(float), 1, f);
+    }
+
     fclose(f);
 }
 
@@ -3263,7 +3610,7 @@ static void spore_load(const char *path) {
         fclose(f);
         return;
     }
-    if (fread(&version, 4, 1, f) != 1 || (version != 1 && version != SPORE_VERSION)) {
+    if (fread(&version, 4, 1, f) != 1 || (version != 1 && version != 2 && version != SPORE_VERSION)) {
         fclose(f);
         return;
     }
@@ -3345,6 +3692,27 @@ static void spore_load(const char *path) {
         }
     }
 
+    /* Memory Sea (v3+) */
+    if (version >= 3) {
+        int sc = 0;
+        if (fread(&sc, sizeof(int), 1, f) == 1 && sc > 0 && sc <= SEA_SLOTS) {
+            sea.count = sc;
+            if (fread(&sea.resurface_count, sizeof(int), 1, f) != 1) { fclose(f); return; }
+            for (int i = 0; i < sc; i++) {
+                if (fread(&sea.poems[i].alive, sizeof(int), 1, f) != 1) break;
+                if (!sea.poems[i].alive) continue;
+                if (fread(sea.poems[i].words, sizeof(int), SEA_KEY_WORDS, f) != SEA_KEY_WORDS) break;
+                if (fread(&sea.poems[i].n_words, sizeof(int), 1, f) != 1) break;
+                if (fread(&sea.poems[i].coda_word, sizeof(int), 1, f) != 1) break;
+                if (fread(sea.poems[i].chambers, sizeof(float), CH_COUNT, f) != CH_COUNT) break;
+                if (fread(&sea.poems[i].julia, sizeof(float), 1, f) != 1) break;
+                if (fread(&sea.poems[i].planet_diss, sizeof(float), 1, f) != 1) break;
+                if (fread(&sea.poems[i].cycle, sizeof(int), 1, f) != 1) break;
+                if (fread(&sea.poems[i].depth, sizeof(float), 1, f) != 1) break;
+            }
+        }
+    }
+
     fclose(f);
     printf("[brodsky] spore loaded: %s\n", path);
 }
@@ -3386,11 +3754,17 @@ static void print_banner(void) {
     printf("  %splanet: %.3f · calendar: %.3f · season: %s%s\n",
            ANSI_DIM, org.planet_diss, org.cal_diss,
            season_names[org.season], ANSI_RESET);
-    if (org.total_cycles > 0)
+    if (org.total_cycles > 0) {
         printf("  %spersistence: %d prior cycles · prophecy: %d/%d%s\n",
                ANSI_DIM, org.total_cycles,
                org.prophecy.fulfilled_total, org.prophecy.created_total,
                ANSI_RESET);
+        int sea_alive = 0;
+        for (int i = 0; i < SEA_SLOTS; i++) if (sea.poems[i].alive) sea_alive++;
+        if (sea_alive > 0)
+            printf("  %smemory sea: %d poems · %d resurfaced%s\n",
+                   ANSI_DIM, sea_alive, sea.resurface_count, ANSI_RESET);
+    }
     printf("\n");
 }
 
@@ -3447,6 +3821,7 @@ static void repl(void) {
             printf("  destiny      show destiny vector\n");
             printf("  exhale       show exhale fragments\n");
             printf("  prophecy     show current prophecies\n");
+            printf("  sea          show memory sea\n");
             printf("  parliament   show DOE expert parliament\n");
             printf("  doe          (alias for parliament)\n");
             printf("  rhyme <word> show rhyme class for a word\n");
@@ -3595,6 +3970,30 @@ static void repl(void) {
                            ANSI_RESET);
                 }
             }
+            continue;
+        }
+
+        if (strcmp(input, "sea") == 0 || strcmp(input, "memory") == 0) {
+            int alive = 0;
+            for (int i = 0; i < SEA_SLOTS; i++) if (sea.poems[i].alive) alive++;
+            printf("  %smemory sea: %d/%d poems alive, %d resurfaced%s\n",
+                   ANSI_DIM, alive, SEA_SLOTS, sea.resurface_count, ANSI_RESET);
+            for (int i = 0; i < SEA_SLOTS; i++) {
+                if (!sea.poems[i].alive) continue;
+                PoemMemory *pm = &sea.poems[i];
+                printf("  %s[%d] cycle %d, depth %.2f, julia %.2f%s",
+                       pm->depth > 0.5f ? emo_color[EMO_RESONANCE] : ANSI_DIM,
+                       i, pm->cycle, pm->depth, pm->julia, ANSI_RESET);
+                printf(" %swords:", ANSI_DIM);
+                for (int w = 0; w < pm->n_words; w++) {
+                    if (pm->words[w] >= 0 && pm->words[w] < vocab_size)
+                        printf(" %s", vocab[pm->words[w]].text);
+                }
+                if (pm->coda_word >= 0 && pm->coda_word < vocab_size)
+                    printf(" | coda: %s", vocab[pm->coda_word].text);
+                printf("%s\n", ANSI_RESET);
+            }
+            if (alive == 0) printf("  %s(empty — no poems written yet)%s\n", ANSI_DIM, ANSI_RESET);
             continue;
         }
 
