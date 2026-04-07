@@ -77,6 +77,23 @@
 #define SEA_DECAY_RATE   0.97f /* depth decay per cycle */
 #define SEA_MIN_DEPTH    0.05f /* below this = evicted */
 
+/* ─── POETIC TRAUMA (scar weights) ─────────────────────────────────── */
+/*
+ * "You are wounded by what you wrote." — not by origin, but by output.
+ * Leo is scarred by his bootstrap. Brodsky is scarred by his own poems.
+ * Every heavy poem leaves marks on the words it used.
+ * Those words surface again — not as memory, but as wound.
+ * The deeper the julia was when you wrote, the deeper the cut.
+ *
+ * Tarkovsky: the artist is destroyed by his own creation.
+ * It's a part of the job.
+ */
+
+#define SCAR_DECAY       0.995f  /* per-cycle decay. half-life ~139 cycles */
+#define SCAR_MAX         2.0f    /* maximum scar weight per word */
+#define SCAR_THRESHOLD   0.4f    /* julia must be above this to scar */
+#define SCAR_BOOST       0.6f    /* score multiplier for scarred words in Dario */
+
 /* ─── TERZA RIMA RHYME ENGINE ──────────────────────────────────────── */
 
 #define MAX_RHYME_CLASSES 512
@@ -1414,6 +1431,46 @@ typedef struct {
 
 static Organism org;
 
+/* ─── POETIC SCARS (per-word trauma from own poems) ────────────────── */
+
+static float scar[MAX_VOCAB];  /* per-word scar weight, 0.0 = clean */
+
+static void scar_init(void) {
+    memset(scar, 0, sizeof(scar));
+}
+
+/* Decay all scars. Called once per cycle. */
+static void scar_decay_all(void) {
+    for (int i = 0; i < vocab_size; i++) {
+        if (scar[i] > 0.0f) {
+            scar[i] *= SCAR_DECAY;
+            if (scar[i] < 0.001f) scar[i] = 0.0f;
+        }
+    }
+}
+
+/* Scar the words used in a cycle. Called after coda.
+ * Intensity = julia × (acc_mass / haiku_count) — heavier poems cut deeper. */
+static void scar_from_cycle(const int *used_words, int n_used, float julia, float intensity) {
+    if (julia < SCAR_THRESHOLD) return;  /* light poems don't wound */
+    float cut = julia * intensity * 0.1f;
+    for (int i = 0; i < n_used; i++) {
+        int idx = used_words[i];
+        if (idx < 0 || idx >= vocab_size) continue;
+        if (vocab[idx].mass < 0.40f) continue;  /* only heavy words scar */
+        scar[idx] += cut;
+        if (scar[idx] > SCAR_MAX) scar[idx] = SCAR_MAX;
+    }
+}
+
+/* Count words with active scars */
+static int scar_count(void) {
+    int n = 0;
+    for (int i = 0; i < vocab_size; i++)
+        if (scar[i] > 0.01f) n++;
+    return n;
+}
+
 /* ─── MEMORY SEA (poem persistence across cycles) ──────────────────── */
 
 typedef struct {
@@ -1543,6 +1600,7 @@ static void organism_init(void) {
     prophecy_init(&org.prophecy);
     parliament_init(&org.parliament);
     sea_init();
+    scar_init();
 }
 
 /* ─── INGEST USER PROMPT ────────────────────────────────────────────── */
@@ -2295,6 +2353,11 @@ static float score_word(int idx) {
     /* Parliament: experts vote on this word */
     float parliament = parliament_score(idx);
     dario += parliament * 0.5f;
+
+    /* Poetic trauma: words scarred by past heavy poems surface.
+     * Not memory — wound. The word hurts, therefore it returns. */
+    if (scar[idx] > 0.0f)
+        dario += scar[idx] * SCAR_BOOST;
 
     /* clamp: dario is always >= 0 */
     if (dario < 0.0f) dario = 0.0f;
@@ -3226,8 +3289,9 @@ static void print_chambers(void) {
 static void print_cycle_footer(int haiku_count) {
     int sea_alive = 0;
     for (int i = 0; i < SEA_SLOTS; i++) if (sea.poems[i].alive) sea_alive++;
-    printf("\n  %s%d haiku + coda · mass %.1f · julia %.2f · sea: %d poems%s\n",
-           ANSI_DIM, haiku_count, org.acc_mass, org.julia, sea_alive, ANSI_RESET);
+    int n_scars = scar_count();
+    printf("\n  %s%d haiku + coda · mass %.1f · julia %.2f · sea: %d · scars: %d%s\n",
+           ANSI_DIM, haiku_count, org.acc_mass, org.julia, sea_alive, n_scars, ANSI_RESET);
     printf("%s━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━%s\n",
            ANSI_DIM, ANSI_RESET);
 }
@@ -3504,6 +3568,18 @@ static int generate_cycle(int cycle_num, char *out_buf, int out_bufsize) {
     int top_n = sea_n_keys < SEA_KEY_WORDS ? sea_n_keys : SEA_KEY_WORDS;
     sea_record(sea_keys, top_n, coda_word);
 
+    /* ─── POETIC TRAUMA: scar the words ─────────────────────── */
+    /* The poem is written. Now it wounds the poet.
+     * Heavy julia + heavy mass = deep cuts.
+     * Light poems pass through without scarring. */
+    scar_decay_all();
+    {
+        float intensity = (org.haiku_in_cycle > 0)
+            ? org.acc_mass / (float)org.haiku_in_cycle
+            : 0.0f;
+        scar_from_cycle(org.used, org.used_count, org.julia, intensity);
+    }
+
     print_cycle_footer(org.haiku_in_cycle);
     return org.haiku_in_cycle;
 }
@@ -3511,7 +3587,7 @@ static int generate_cycle(int cycle_num, char *out_buf, int out_bufsize) {
 /* ─── SPORE: PERSISTENCE ──────────────────────────────────────────── */
 
 #define SPORE_MAGIC   0x42524F44  /* "BROD" */
-#define SPORE_VERSION 3          /* v3: added Memory Sea */
+#define SPORE_VERSION 4          /* v4: Memory Sea + poetic scars */
 #define SPORE_PATH    "brodsky.spore"
 
 static int tension_pair_count(void) {
@@ -3598,6 +3674,10 @@ static void spore_save(const char *path) {
         fwrite(&sea.poems[i].depth, sizeof(float), 1, f);
     }
 
+    /* Poetic scars (v4) */
+    fwrite(&vocab_size, sizeof(int), 1, f);
+    fwrite(scar, sizeof(float), (size_t)vocab_size, f);
+
     fclose(f);
 }
 
@@ -3610,7 +3690,7 @@ static void spore_load(const char *path) {
         fclose(f);
         return;
     }
-    if (fread(&version, 4, 1, f) != 1 || (version != 1 && version != 2 && version != SPORE_VERSION)) {
+    if (fread(&version, 4, 1, f) != 1 || version < 1 || version > SPORE_VERSION) {
         fclose(f);
         return;
     }
@@ -3692,7 +3772,7 @@ static void spore_load(const char *path) {
         }
     }
 
-    /* Memory Sea (v3+) */
+    /* Memory Sea (v3/v4+) */
     if (version >= 3) {
         int sc = 0;
         if (fread(&sc, sizeof(int), 1, f) == 1 && sc > 0 && sc <= SEA_SLOTS) {
@@ -3709,6 +3789,20 @@ static void spore_load(const char *path) {
                 if (fread(&sea.poems[i].planet_diss, sizeof(float), 1, f) != 1) break;
                 if (fread(&sea.poems[i].cycle, sizeof(int), 1, f) != 1) break;
                 if (fread(&sea.poems[i].depth, sizeof(float), 1, f) != 1) break;
+            }
+        }
+    }
+
+    /* Poetic scars (v4+) */
+    if (version >= 4) {
+        int sv = 0;
+        if (fread(&sv, sizeof(int), 1, f) == 1 && sv > 0 && sv <= MAX_VOCAB) {
+            int to_read = sv < vocab_size ? sv : vocab_size;
+            if (fread(scar, sizeof(float), (size_t)to_read, f) != (size_t)to_read) { /* partial ok */ }
+            /* skip extras if saved vocab was larger */
+            for (int i = to_read; i < sv; i++) {
+                float dummy;
+                if (fread(&dummy, sizeof(float), 1, f) != 1) break;
             }
         }
     }
@@ -3764,6 +3858,9 @@ static void print_banner(void) {
         if (sea_alive > 0)
             printf("  %smemory sea: %d poems · %d resurfaced%s\n",
                    ANSI_DIM, sea_alive, sea.resurface_count, ANSI_RESET);
+        int n_scars = scar_count();
+        if (n_scars > 0)
+            printf("  %sscars: %d wounded words%s\n", ANSI_DIM, n_scars, ANSI_RESET);
     }
     printf("\n");
 }
@@ -3822,6 +3919,7 @@ static void repl(void) {
             printf("  exhale       show exhale fragments\n");
             printf("  prophecy     show current prophecies\n");
             printf("  sea          show memory sea\n");
+            printf("  scars        show poetic wounds\n");
             printf("  parliament   show DOE expert parliament\n");
             printf("  doe          (alias for parliament)\n");
             printf("  rhyme <word> show rhyme class for a word\n");
@@ -3969,6 +4067,36 @@ static void repl(void) {
                            doc->chamber_mood[4], doc->chamber_mood[5],
                            ANSI_RESET);
                 }
+            }
+            continue;
+        }
+
+        if (strcmp(input, "scars") == 0 || strcmp(input, "trauma") == 0) {
+            int n = scar_count();
+            printf("  %spoetic scars: %d wounded words%s\n", ANSI_DIM, n, ANSI_RESET);
+            if (n == 0) {
+                printf("  %s(no scars yet — write heavier poems)%s\n", ANSI_DIM, ANSI_RESET);
+                continue;
+            }
+            /* show top 20 scarred words, sorted by weight */
+            int top[20]; float top_w[20];
+            int nt = 0;
+            for (int i = 0; i < vocab_size && nt < 20; i++) {
+                if (scar[i] < 0.01f) continue;
+                /* insert sorted */
+                int pos = nt;
+                for (int j = 0; j < nt; j++) {
+                    if (scar[i] > top_w[j]) { pos = j; break; }
+                }
+                for (int j = nt; j > pos; j--) { top[j] = top[j-1]; top_w[j] = top_w[j-1]; }
+                top[pos] = i; top_w[pos] = scar[i];
+                if (nt < 20) nt++;
+            }
+            for (int i = 0; i < nt; i++) {
+                int emo = vocab[top[i]].emotion;
+                printf("  %s%-20s%s %s%.3f%s\n",
+                       emo_color[emo], vocab[top[i]].text, ANSI_RESET,
+                       ANSI_DIM, top_w[i], ANSI_RESET);
             }
             continue;
         }
