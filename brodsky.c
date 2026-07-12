@@ -1688,6 +1688,7 @@ static float ingest_prompt(const char *text) {
             case EMO_RAGE: org.chambers.phase[CH_RAGE] += mass * 0.8f; break;
             case EMO_VOID: org.chambers.phase[CH_VOID] += mass * 0.8f; break;
             case EMO_RESONANCE: org.chambers.phase[CH_FLOW] += mass * 0.8f; break;
+            case EMO_JOY: org.chambers.phase[CH_FLOW] += mass * 0.8f; break;   /* M-3: joy → flow (kk.h:126-129) */
             case EMO_JULIA: org.julia += mass * 0.5f; break;
             case EMO_GRIEF: org.chambers.phase[CH_VOID] += mass * 0.5f;
                             org.chambers.phase[CH_FEAR] += mass * 0.3f; break;
@@ -3532,10 +3533,13 @@ static int generate_cycle(int cycle_num, char *out_buf, int out_bufsize) {
         {
             char self_text[512];
             haiku_to_string(&h, self_text, (int)sizeof(self_text));
+            /* B-4: the meta-ingest shifts chambers / hebbian / julia, but the CYCLE's
+             * language answers the human — one diacritic ghost word must not hijack the
+             * rest of the cycle into French. Keep current_lang stable (as the comment
+             * always promised) by saving it around the self-ingest. */
+            int saved_lang = org.current_lang;
             ingest_prompt(self_text);
-            /* the ingest modifies: chambers, hebbian, julia, current_lang.
-             * but we keep current_lang stable within a cycle. */
-            org.current_lang = detect_language(self_text);
+            org.current_lang = saved_lang;
         }
 
         /* write to buffer for web mode */
