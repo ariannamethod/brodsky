@@ -4247,90 +4247,8 @@ static const char *html_template_tail =
     "<a href='/'>generate again</a>"
     "</div></body></html>";
 
-static const char *emo_class[EMO_COUNT] = {
-    "trauma", "joy", "grief", "resonance",
-    "desire", "void", "rage", "tenderness", "julia"
-};
 
 /* HTML-escape a string (minimal: &, <, >) into buf, return bytes written */
-static int html_escape(const char *src, char *dst, int dstsize) {
-    int pos = 0;
-    for (const char *p = src; *p && pos < dstsize - 6; p++) {
-        if (*p == '&') { memcpy(dst + pos, "&amp;", 5); pos += 5; }
-        else if (*p == '<') { memcpy(dst + pos, "&lt;", 4); pos += 4; }
-        else if (*p == '>') { memcpy(dst + pos, "&gt;", 4); pos += 4; }
-        else dst[pos++] = *p;
-    }
-    if (pos < dstsize) dst[pos] = '\0';
-    return pos;
-}
-
-static int haiku_to_html(const Haiku *h, char *buf, int bufsize) {
-    int pos = 0;
-    /* Detect rhyming end words for visual marking */
-    int end0 = (h->lines[0].count > 0) ? h->lines[0].words[h->lines[0].count - 1] : -1;
-    int end2 = (h->lines[2].count > 0) ? h->lines[2].words[h->lines[2].count - 1] : -1;
-    int has_rhyme = (end0 >= 0 && end2 >= 0 && words_rhyme(end0, end2));
-
-    pos += snprintf(buf + pos, (size_t)(bufsize - pos), "<div class='haiku'>");
-    for (int ln = 0; ln < 3; ln++) {
-        const Line *line = &h->lines[ln];
-        PunctMark marks[MAX_LINE_WORDS];
-        memset(marks, 0, sizeof(marks));
-        punctuate_line(line, marks);
-
-        pos += snprintf(buf + pos, (size_t)(bufsize - pos), "<span class='line'>");
-        for (int w = 0; w < line->count; w++) {
-            int idx = line->words[w];
-            int emo = vocab[idx].emotion;
-
-            /* Pre-punctuation (plain text, not colored) */
-            if (marks[w].pre_punct[0] != '\0') {
-                char esc[64];
-                html_escape(marks[w].pre_punct, esc, (int)sizeof(esc));
-                pos += snprintf(buf + pos, (size_t)(bufsize - pos), "%s", esc);
-            } else if (w > 0) {
-                pos += snprintf(buf + pos, (size_t)(bufsize - pos), " ");
-            }
-
-            /* Word text (possibly capitalized) */
-            char display[128];
-            if (marks[w].capitalize && !marks[w].ghost) {
-                capitalize_word(vocab[idx].text, display, (int)sizeof(display));
-            } else {
-                int tlen = (int)strlen(vocab[idx].text);
-                if (tlen > (int)sizeof(display) - 1) tlen = (int)sizeof(display) - 1;
-                memcpy(display, vocab[idx].text, (size_t)tlen);
-                display[tlen] = '\0';
-            }
-
-            /* Mark last word of lines 1 and 3 if they rhyme */
-            int is_rhyme_end = (has_rhyme && w == line->count - 1 && (ln == 0 || ln == 2));
-            char esc_word[256];
-            html_escape(display, esc_word, (int)sizeof(esc_word));
-            pos += snprintf(buf + pos, (size_t)(bufsize - pos),
-                           "<span class='%s%s'>%s</span>",
-                           emo_class[emo],
-                           is_rhyme_end ? " rhyme" : "",
-                           esc_word);
-
-            /* Post-punctuation (plain text) */
-            if (marks[w].post_punct[0] != '\0') {
-                char esc[16];
-                html_escape(marks[w].post_punct, esc, (int)sizeof(esc));
-                pos += snprintf(buf + pos, (size_t)(bufsize - pos), "%s", esc);
-            }
-        }
-        if (ln == 2 && h->has_enjamb) {
-            pos += snprintf(buf + pos, (size_t)(bufsize - pos),
-                           " <span class='dash'>&mdash;</span>");
-        }
-        pos += snprintf(buf + pos, (size_t)(bufsize - pos), "</span>");
-    }
-    pos += snprintf(buf + pos, (size_t)(bufsize - pos), "</div>");
-    return pos;
-}
-
 static void web_serve(void) {
     int server_fd = socket(AF_INET, SOCK_STREAM, 0);
     if (server_fd < 0) { perror("socket"); return; }
@@ -4380,51 +4298,45 @@ static void web_serve(void) {
             continue;
         }
 
-        /* generate a cycle */
+        /* B-2: run the SAME full cycle the terminal runs — coda, memory sea, scars,
+         * meta-recursion and total_cycles++ — via generate_cycle, instead of the old
+         * hand-rolled haiku-only loop that skipped all of it. */
         cycle_num++;
         if (!g_user_seeded) rng_seed((unsigned long)time(NULL) ^ (unsigned long)cycle_num * 6364136223846793005ULL);
-        cycle_reset();
+
+        char poem[8192];
+        generate_cycle(cycle_num, poem, (int)sizeof(poem));
+
+        printf("[web] cycle %d: %d haiku, mass %.1f, julia %.2f, total_cycles %ld\n",
+               cycle_num, org.haiku_in_cycle, org.acc_mass, org.julia, (long)org.total_cycles);
 
         char response[16384];
         int rpos = 0;
-
-        /* head */
         int hlen = (int)strlen(html_template_head);
         memcpy(response + rpos, html_template_head, (size_t)hlen);
         rpos += hlen;
 
-        /* cycle info */
-        rpos += snprintf(response + rpos, (size_t)(sizeof(response) - (size_t)rpos),
-                        "<div class='meta'>cycle %d &middot; %s &middot; "
-                        "planet %.2f &middot; julia %.2f</div>",
-                        cycle_num, season_names[org.season],
-                        org.planet_diss, org.julia);
+        /* cycle info — M-5: snprintf return is clamped, never advances rpos past the buffer */
+        int m = snprintf(response + rpos, sizeof(response) - (size_t)rpos,
+                        "<div class='meta'>cycle %d &middot; %s &middot; planet %.2f &middot; "
+                        "julia %.2f</div><pre class='poem'>",
+                        cycle_num, season_names[org.season], org.planet_diss, org.julia);
+        if (m > 0 && rpos + m < (int)sizeof(response)) rpos += m;
 
-        /* generate haiku */
-        do {
-            org.haiku_in_cycle++;
-
-            Haiku h;
-            memset(&h, 0, sizeof(h));
-            generate_haiku(&h);
-
-            rpos += haiku_to_html(&h, response + rpos,
-                                  (int)(sizeof(response) - (size_t)rpos));
-
-            if (should_stop_cycle()) break;
-            inter_haiku_update();
-        } while (1);
-
-        /* also print to terminal */
-        printf("[web] cycle %d: %d haiku, mass %.1f, julia %.2f\n",
-               cycle_num, org.haiku_in_cycle, org.acc_mass, org.julia);
-
-        /* tail */
-        int tlen = (int)strlen(html_template_tail);
-        if (rpos + tlen < (int)sizeof(response)) {
-            memcpy(response + rpos, html_template_tail, (size_t)tlen);
-            rpos += tlen;
+        /* the full poem (haiku + coda), HTML-escaped into a <pre> */
+        for (int i = 0; poem[i] && rpos < (int)sizeof(response) - 16; i++) {
+            char c = poem[i];
+            if (c == '<')      { memcpy(response + rpos, "&lt;", 4);  rpos += 4; }
+            else if (c == '>') { memcpy(response + rpos, "&gt;", 4);  rpos += 4; }
+            else if (c == '&') { memcpy(response + rpos, "&amp;", 5); rpos += 5; }
+            else               { response[rpos++] = c; }
         }
+        const char *pre_close = "</pre>";
+        int pclen = (int)strlen(pre_close);
+        if (rpos + pclen < (int)sizeof(response)) { memcpy(response + rpos, pre_close, (size_t)pclen); rpos += pclen; }
+
+        int tlen = (int)strlen(html_template_tail);
+        if (rpos + tlen < (int)sizeof(response)) { memcpy(response + rpos, html_template_tail, (size_t)tlen); rpos += tlen; }
 
         write(client_fd, response, (size_t)rpos);
         close(client_fd);
