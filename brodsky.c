@@ -1025,13 +1025,38 @@ static void hebbian_record(int a, int b) {
             return;
         }
     }
-    /* add new */
+    /* add new — B-6: when the table is full, evict the weakest slot instead of dropping
+     * the newcomer, so the organ keeps learning past its first 64 pairs. */
     if (hebbian.count < HEBBIAN_SLOTS) {
         hebbian.word_a[hebbian.count] = a;
         hebbian.word_b[hebbian.count] = b;
         hebbian.strength[hebbian.count] = 0.1f;
         hebbian.count++;
+    } else {
+        /* full — evict the weakest slot so the newcomer can enter. decay makes stale
+         * pairs the weakest over time; reinforced pairs climb above the churn and survive. */
+        int weakest = 0;
+        for (int i = 1; i < HEBBIAN_SLOTS; i++)
+            if (hebbian.strength[i] < hebbian.strength[weakest]) weakest = i;
+        hebbian.word_a[weakest]   = a;
+        hebbian.word_b[weakest]   = b;
+        hebbian.strength[weakest] = 0.1f;
     }
+}
+
+/* B-6: decay every pair each cycle and forget the faded, so old associations don't
+ * hold the 64 slots forever — the organ stays alive instead of glazing after a flash. */
+static void hebbian_decay(void) {
+    int w = 0;
+    for (int i = 0; i < hebbian.count; i++) {
+        float s = hebbian.strength[i] * 0.995f;
+        if (s < 0.02f) continue;   /* faded below the floor — forget it, free the slot */
+        hebbian.word_a[w]   = hebbian.word_a[i];
+        hebbian.word_b[w]   = hebbian.word_b[i];
+        hebbian.strength[w] = s;
+        w++;
+    }
+    hebbian.count = w;
 }
 
 static float hebbian_score(int a, int b) {
@@ -3458,6 +3483,7 @@ static int coda_to_string(const Coda *coda, char *buf, int bufsize) {
 static int generate_cycle(int cycle_num, char *out_buf, int out_bufsize) {
     cycle_reset();
     org.total_cycles++;
+    hebbian_decay();   /* B-6: age the associations each cycle so the organ keeps learning */
     int out_pos = 0;
 
     /* Memory Sea: decay all existing memories */
@@ -3614,7 +3640,7 @@ static int generate_cycle(int cycle_num, char *out_buf, int out_bufsize) {
 /* ─── SPORE: PERSISTENCE ──────────────────────────────────────────── */
 
 #define SPORE_MAGIC   0x42524F44  /* "BROD" */
-#define SPORE_VERSION 4          /* v4: Memory Sea + poetic scars */
+#define SPORE_VERSION 5          /* v5: online Hebbian profile (B-6) */
 #define SPORE_PATH    "brodsky.spore"
 
 static int tension_pair_count(void) {
@@ -3704,6 +3730,12 @@ static void spore_save(const char *path) {
     /* Poetic scars (v4) */
     fwrite(&vocab_size, sizeof(int), 1, f);
     fwrite(scar, sizeof(float), (size_t)vocab_size, f);
+
+    /* online Hebbian profile (v5, B-6) — the associations the poet learned this life */
+    fwrite(&hebbian.count,   sizeof(int),   1, f);
+    fwrite(hebbian.word_a,   sizeof(int),   (size_t)hebbian.count, f);
+    fwrite(hebbian.word_b,   sizeof(int),   (size_t)hebbian.count, f);
+    fwrite(hebbian.strength, sizeof(float), (size_t)hebbian.count, f);
 
     fclose(f);
 }
@@ -3834,8 +3866,19 @@ static void spore_load(const char *path) {
         }
     }
 
+    /* online Hebbian profile (v5+, B-6) — restore what the poet learned last life */
+    if (version >= 5) {
+        int hc = 0;
+        if (fread(&hc, sizeof(int), 1, f) == 1 && hc >= 0 && hc <= HEBBIAN_SLOTS) {
+            hebbian.count = hc;
+            if (fread(hebbian.word_a,   sizeof(int),   (size_t)hc, f) != (size_t)hc) hebbian.count = 0;
+            if (fread(hebbian.word_b,   sizeof(int),   (size_t)hc, f) != (size_t)hc) hebbian.count = 0;
+            if (fread(hebbian.strength, sizeof(float), (size_t)hc, f) != (size_t)hc) hebbian.count = 0;
+        }
+    }
+
     fclose(f);
-    printf("[brodsky] spore loaded: %s\n", path);
+    printf("[brodsky] spore loaded: %s (hebbian: %d)\n", path, hebbian.count);
 }
 
 /* Signal handler: save spore on Ctrl+C */
