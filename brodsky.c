@@ -2960,11 +2960,21 @@ typedef struct {
  * punctuate_line: compute punctuation marks for each word in a line.
  * marks[] must have at least line->count elements.
  */
+/* M-1: punctuation derived from the LINE'S CONTENT (a local xorshift seeded by the word
+ * indices), not the global RNG — so the same haiku is punctuated identically every render
+ * (terminal print, self-ingest, web) and rendering never perturbs the generation stream. */
+static float punct_rand(unsigned *s) {
+    *s ^= *s << 13; *s ^= *s >> 17; *s ^= *s << 5;
+    return (float)(*s & 0xFFFFFFu) / (float)0x1000000;
+}
 static void punctuate_line(const Line *line, PunctMark *marks) {
     int n = line->count;
     if (n == 0) return;
 
     int lang = line_primary_lang(line);
+    unsigned ph = 2166136261u;
+    for (int i = 0; i < n; i++) ph = (ph ^ (unsigned)(line->words[i] + 1)) * 16777619u;
+    if (ph == 0) ph = 1;
 
     /* Initialize all marks to empty */
     for (int i = 0; i < n; i++) {
@@ -2991,7 +3001,7 @@ static void punctuate_line(const Line *line, PunctMark *marks) {
         }
 
         /* 25% chance: skip punctuation for this word (probabilistic rhythm) */
-        int skip_punct = (rng_float() < 0.25f);
+        int skip_punct = (punct_rand(&ph) < 0.25f);
 
         if (skip_punct) {
             /* Still capitalize if after period */
@@ -3032,7 +3042,7 @@ static void punctuate_line(const Line *line, PunctMark *marks) {
                 /* Check for exclamation: mass > 0.80 AND emotion TRAUMA or RAGE → 10% chance */
                 if (vocab[idx].mass > 0.80f &&
                     (vocab[idx].emotion == EMO_TRAUMA || vocab[idx].emotion == EMO_RAGE) &&
-                    rng_float() < 0.10f) {
+                    punct_rand(&ph) < 0.10f) {
                     marks[i].post_punct = "!";
                 } else {
                     marks[i].post_punct = ".";
@@ -3046,7 +3056,7 @@ static void punctuate_line(const Line *line, PunctMark *marks) {
                 /* Verb + noun/adjective/other → period after verb */
                 if (vocab[idx].mass > 0.80f &&
                     (vocab[idx].emotion == EMO_TRAUMA || vocab[idx].emotion == EMO_RAGE) &&
-                    rng_float() < 0.10f) {
+                    punct_rand(&ph) < 0.10f) {
                     marks[i].post_punct = "!";
                 } else {
                     marks[i].post_punct = ".";
@@ -3108,7 +3118,7 @@ static void punctuate_line(const Line *line, PunctMark *marks) {
             /* Check for exclamation */
             if (vocab[idx].mass > 0.80f &&
                 (vocab[idx].emotion == EMO_TRAUMA || vocab[idx].emotion == EMO_RAGE) &&
-                rng_float() < 0.10f) {
+                punct_rand(&ph) < 0.10f) {
                 marks[i].post_punct = "!";
             } else {
                 marks[i].post_punct = ".";
