@@ -26,6 +26,9 @@ W("soledad",          0.80, 3, EMO_JULIA), \
 W("abismo",           0.80, 3, EMO_VOID), \
 /* === EXILIO === */ \
 W("exilio",           0.90, 3, EMO_JULIA), \
+W("empero",           0.38, 3, EMO_VOID), \
+W("aunque",           0.35, 2, EMO_VOID), \
+W("mas",              0.30, 1, EMO_VOID), \
 W("destierro",        0.80, 3, EMO_JULIA), \
 W("separación",       0.75, 4, EMO_JULIA), \
 W("partida",          0.65, 3, EMO_JULIA), \

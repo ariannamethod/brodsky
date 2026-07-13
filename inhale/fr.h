@@ -571,7 +571,11 @@ W("tanguer",          0.40, 2, EMO_TRAUMA), \
 W("défigurer",        0.55, 4, EMO_TRAUMA), \
 W("calfeutrer",       0.40, 3, EMO_VOID), \
 W("colmater",         0.40, 3, EMO_VOID), \
-W("raccommodor",      0.40, 4, EMO_VOID), \
+W("raccommoder",      0.40, 4, EMO_VOID), \
+W("cependant",        0.38, 3, EMO_VOID), \
+W("toutefois",        0.38, 3, EMO_VOID), \
+W("pourtant",         0.35, 2, EMO_VOID), \
+W("nonobstant",       0.40, 3, EMO_VOID), \
 W("étayer",           0.35, 3, EMO_VOID), \
 /* === ABSTRAITS — Apollinaire === */ \
 W("modernité",        0.55, 4, EMO_VOID), \

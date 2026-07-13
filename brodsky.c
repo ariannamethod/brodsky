@@ -50,7 +50,8 @@
 
 /* ─── CONSTANTS ─────────────────────────────────────────────────────── */
 
-#define MAX_VOCAB       4500
+#define MAX_VOCAB       5000    /* M-4: raw entries (~4517) exceeded the old 4500 cap, so the
+                                 * Spanish tail was silently truncated; give it room for all of it */
 #define MAX_LINE_WORDS  12
 #define MAX_HAIKU_WORDS 36
 #define DESTINY_DIM     8
@@ -374,7 +375,9 @@ static const char *fr_connectives[] = {
 };
 
 static const char *es_connectives[] = {
-    "sinembargo", "noobstante", "portanto",
+    /* M-4: valid single-token connectives — the old "sinembargo"/"noobstante"/"portanto"
+     * were run-together non-words (the real forms "sin embargo" etc. are multiword, M-2). */
+    "empero", "aunque", "mas",
     NULL
 };
 
