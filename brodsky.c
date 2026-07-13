@@ -2576,7 +2576,7 @@ static int sample_word(int syl_remaining, int force_max_syl,
     /* rhyme: filter, not boost. A poet rhymes or breaks the rhyme.
      *
      * Strategy: when rhyme_target is set —
-     *   1. 25% chance: skip rhyme entirely (poet breaks his own pattern)
+     *   1. 8% chance: skip rhyme entirely (poet breaks his own pattern)
      *   2. Otherwise: FILTER to rhyming candidates only
      *   3. If no rhyming candidates survive the filter — free generation
      *

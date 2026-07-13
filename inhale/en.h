@@ -1,7 +1,7 @@
 /* inhale/en.h — English heavy vocabulary for brodsky.c
  * 941 words. Latinisms, polysyllables, Brodsky's actual lexicon.
  * Plath (domestic horror, female viscera), Celan (broken language, absence).
- * Each word: text, mass, syllables, emotion, consonant_density (precomputed)
+ * Each word: text, mass, syllables, emotion, consonant_density (computed at load)
  */
 
 /* W(word, mass, syllables, emotion) */

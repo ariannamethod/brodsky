@@ -353,6 +353,11 @@ brodsky> exhale       show corpus fragments
 brodsky> prophecy     show active prophecies
 brodsky> parliament   show DOE expert parliament
 brodsky> doe          (alias for parliament)
+brodsky> sea          show the memory sea (past poems, resurfaced)
+brodsky> scars        show the poet's wounded words (alias: trauma)
+brodsky> memory       show recent poems held in memory
+brodsky> kk           knowledge-kernel state
+brodsky> library      the library docs (kk documents)
 brodsky> seed <N>     set RNG seed
 brodsky> tau <F>      set temperature
 brodsky> julia <F>    set Julia field manually
